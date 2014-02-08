@@ -1,0 +1,210 @@
+#!/usr/bin/perl
+
+# mem2svg
+#   A simple converter from a simple representation of memory to
+#   an SVG diagram that illustrates that represention.
+#
+#   Each line has the form
+#      Label,Contents,Height
+#   Default values:
+#      Label: Nothing
+#      Contents: Nothing
+#      Height: 1 memory unit
+#   A blank line gives nothing
+#   The keyword BLANK gives a blank line (useful for separating items)
+#   The keyword EMPTY gives    |         |
+#   The keyword ELLIPSES gives     ...
+#   A line starting with a # sign is a comment
+#   A line starting with a ":" is a label (I hope)
+
+######################################################################
+# Settings #
+############
+
+# The border at top and bottom
+my $BORDER = 8;
+
+# The width of a cell
+my $CELL_WIDTH = 96;
+my $CELL_HEIGHT = 24;
+
+# The left offset before we have text
+my $OFFSET = 48;
+
+# The font size
+my $FONTSIZE = 14;
+
+# The vertical offset of the baseline of text from the top of the box (bleh)
+my $TEXT_VOFF = $CELL_HEIGHT/2 + $FONTSIZE/2;
+
+######################################################################
+# Variables #
+#############
+
+my @lines;      # Input lines
+my $cells = 0;  # Number of cells shown in memory
+
+######################################################################
+# Main #
+########
+
+# Process the input, shoving useful lines into @lines and counting
+# the number of cells we'll need.
+
+while (<STDIN>) {
+  chomp($_);
+  if ((!m/^ *$/) && (! m/^#/)) {
+    @values = split(/,/);
+    if ($values[2]) {
+      $cells += $values[2];
+    }
+    else {
+      $cells += 1;
+    }
+    push @lines,$_;
+  } # if the line contains info
+} # while
+
+# print join(':',@lines);
+# exit 0;
+
+my $docwidth = $OFFSET + $BORDER + $CELL_WIDTH;
+my $docheight = 2*$BORDER + $cells*$CELL_HEIGHT;
+
+print <<"HEAD";
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with mem2svg, one of SamR's hacks -->
+
+<svg
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   width="$docwidth"
+   height="$docheight"
+   id="svg2"
+   version="1.1">
+
+HEAD
+
+my $cell = 0;   # Which cell are we on?
+my $x;          # x coordinate of something
+my $y;          # y coordinate of something
+my $w;          # width
+my $h;          # height
+
+for $line (@lines) {
+  # print "<!-- $line -->\n";
+  # Compute the top of the next thing we want to draw
+  $top = $BORDER + $CELL_HEIGHT * $cell;
+  print "<!-- Top: $top -->\n";
+
+  # Case 1: Ellipses
+  if ($line =~ m/ELLIPSES/) {
+    print "<!-- ELLIPSES -->\n";
+    centerText(". . .", $OFFSET+$CELL_WIDTH/2, $top+$TEXT_VOFF);
+  } # Ellipses
+
+  # Case 2: Empty 
+  elsif ($line =~ m/EMPTY/) {
+    print "<!-- EMPTY -->\n";
+    makeLine($OFFSET,$top, $OFFSET, $top+$CELL_HEIGHT);
+    makeLine($OFFSET+$CELL_WIDTH,$top, $OFFSET+$CELL_WIDTH, $top+$CELL_HEIGHT);
+  } # Empty
+
+  # Case 3: Blank
+  elsif ($line =~ m/BLANK/) {
+    print "<!-- BLANK -->\n";
+  } # Blank
+
+  # Case 4: A label
+  elsif ($line =~ m/^:/) {
+    $line =~ s/^://;
+    makeLabel($line, 0, $top+$TEXT_VOFF);
+  } # Label
+
+  # Default: A real memory cell
+  else {
+    @line = split(/,/,$line);
+    my ($label,$contents,$boxcells) = split(/,/,$line,3);
+    if (!$boxcells) { $boxcells = 1 }
+    print "<!-- CELL (label:[$label], contents:[$contents], height:[$boxcells] -->\n";
+    if (! ($label eq "")) {
+      rightText("$label:", $OFFSET-5, $top+$TEXT_VOFF);
+    }
+    if (! ($contents eq "")) {
+      centerText($contents, $OFFSET + $CELL_WIDTH/2, $top+$TEXT_VOFF+(($boxcells-1)*$CELL_HEIGHT)/2);
+    }
+    drawBox($OFFSET, $top, $CELL_WIDTH, $boxcells*$CELL_HEIGHT);
+    $cell += $boxcells-1;
+  } # default
+
+  ++$cell;
+  print "\n";
+} # for
+
+print <<"TAIL";
+</svg>
+TAIL
+
+######################################################################
+# Subroutines #
+###############
+
+sub centerText($$$)
+{
+  my ($text,$x,$y) = @_;
+
+  print <<"CENTER";
+    <text
+      style="font-size:${FONTSIZE}px;text-align:center;text-anchor:middle;font-family:Sans"
+      x="$x"
+      y="$y">$text</text>
+CENTER
+} # centerText
+
+sub drawBox($$$$)
+{
+  my ($x,$y,$width,$height) = @_;
+  print <<"BOX";
+   <rect
+     style="fill:none;stroke:#000000;stroke-width:1px"
+     x="$x"
+     y="$y"
+     width="$width"
+     height="$height"/>
+BOX
+} # drawBox
+
+sub makeLabel ($)
+{
+  my ($text,$x,$y) = @_;
+
+  print <<"LABEL";
+    <text
+      style="font-size:${FONTSIZE}px;text-align:start;text-anchor:start;font-weight:bold;font-family:Sans"
+      x="$x"
+      y="$y">$text</text>
+LABEL
+} # makeLabel
+
+sub makeLine($$$$)
+{
+  my ($x1,$y1,$x2,$y2) = @_;
+  print <<"LINE";
+     <line x1="$x1" y1="$y1" 
+           x2="$x2" y2="$y2" 
+           style="stroke:#000000;stroke-width:1px" />
+LINE
+} # makeLine
+
+sub rightText($$$)
+{
+  my ($text,$x,$y) = @_;
+
+  print <<"RIGHT";
+    <text
+      style="font-size:${FONTSIZE}px;text-align:end;text-anchor:end;font-family:Sans"
+      x="$x"
+      y="$y">$text</text>
+RIGHT
+} # rightText
+
