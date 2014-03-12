@@ -5,7 +5,7 @@
 #   an SVG diagram that illustrates that represention.
 #
 #   Each line has the form
-#      Label,Contents,Height
+#      Label:Contents:Height
 #   Default values:
 #      Label: Nothing
 #      Contents: Nothing
@@ -15,7 +15,7 @@
 #   The keyword EMPTY gives    |         |
 #   The keyword ELLIPSES gives     ...
 #   A line starting with a # sign is a comment
-#   A line starting with a ":" is a label (I hope)
+#   A line starting with a "-" is a label
 
 ######################################################################
 # Settings #
@@ -28,11 +28,11 @@ my $BORDER = 8;
 my $CELL_WIDTH = 96;
 my $CELL_HEIGHT = 24;
 
-# The left offset before we have text
+# The left offset for the text
 my $OFFSET = 48;
 
 # The font size
-my $FONTSIZE = 14;
+my $FONTSIZE = 12;
 
 # The vertical offset of the baseline of text from the top of the box (bleh)
 my $TEXT_VOFF = $CELL_HEIGHT/2 + $FONTSIZE/2;
@@ -54,7 +54,7 @@ my $cells = 0;  # Number of cells shown in memory
 while (<STDIN>) {
   chomp($_);
   if ((!m/^ *$/) && (! m/^#/)) {
-    @values = split(/,/);
+    @values = split(/:/);
     if ($values[2]) {
       $cells += $values[2];
     }
@@ -116,15 +116,15 @@ for $line (@lines) {
   } # Blank
 
   # Case 4: A label
-  elsif ($line =~ m/^:/) {
-    $line =~ s/^://;
+  elsif ($line =~ m/^-/) {
+    $line =~ s/^-//;
+    print "<!-- LABEL ($line) -->\n";
     makeLabel($line, 0, $top+$TEXT_VOFF);
   } # Label
 
   # Default: A real memory cell
   else {
-    @line = split(/,/,$line);
-    my ($label,$contents,$boxcells) = split(/,/,$line,3);
+    my ($label,$contents,$boxcells) = split(/:/,$line,3);
     if (!$boxcells) { $boxcells = 1 }
     print "<!-- CELL (label:[$label], contents:[$contents], height:[$boxcells] -->\n";
     if (! ($label eq "")) {
