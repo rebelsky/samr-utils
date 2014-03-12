@@ -1,0 +1,17 @@
+#!/usr/bin/perl
+
+# ul char
+#   Underlines and reprints the first line of input
+
+my $char = shift;
+if (! $char) { $char = "-"; }
+
+my $line = <>;
+chomp($line);
+my $len = length($line);
+print "$line\n";
+for ($i = 0; $i < $len; $i++) {
+  print $char;
+}
+print "\n";
+

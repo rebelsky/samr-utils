@@ -1,0 +1,7 @@
+#!/usr/bin/perl
+
+# jtab Some Text
+#  Create one of Sam's "comment tabs" for C
+
+my $text = join(" ", @ARGV);
+system("tab '//' $text");

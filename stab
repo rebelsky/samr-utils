@@ -1,0 +1,7 @@
+#!/usr/bin/perl
+
+# stab Some Text
+#  Create one of Sam's "comment tabs" for Scheme
+
+my $text = join(" ", @ARGV);
+system("tab ';' $text");

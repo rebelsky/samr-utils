@@ -1,0 +1,53 @@
+#!/usr/bin/perl
+
+# ctab prefix Text
+#   Creates one of the tabs that Sam likes to use when writing Java
+#   code (or code in other languages).
+
+# +----------+--------------------------------------------------------
+# | Settings |
+# +----------+
+
+# The width of a tab
+my $TABLEN = $ENV{"TABLEN"};
+if (!$TABLEN) { $TABLEN = 70; }
+
+# +-----------+-------------------------------------------------------
+# | Variables |
+# +-----------+
+
+# The comment character
+my $comment = shift;
+my $comlen = length($COMMENT);
+
+# The text
+my $text = join(" ", @ARGV);
+my $textlen = length($text);
+
+# Everyone's favorite generic variable
+my $i;
+
+# +------+------------------------------------------------------------
+# | Main |
+# +------+
+
+# The stuff above the text
+print "$comment +";
+for ($i = 0; $i < ($textlen + 2); $i++) {
+  print "-";
+} # for
+print "+";
+for ($i = ($comlen + $textlen + 6); $i < $TABLEN; $i++) {
+  print "-";
+} # for
+print "\n";
+
+# The text
+print "$comment | $text |\n";
+
+# The stuff below the text
+print "$comment +";
+for ($i = 0; $i < ($textlen + 2); $i++) {
+  print "-";
+} # for
+print "+\n";

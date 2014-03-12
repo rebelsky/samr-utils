@@ -1,0 +1,7 @@
+#!/usr/bin/perl
+
+# ptab Some Text
+#  Create one of Sam's "comment tabs"
+
+my $text = join(" ", @ARGV);
+system("tab '#' $text");
