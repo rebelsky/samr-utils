@@ -1,0 +1,17 @@
+#!/usr/bin/perl
+
+# ebr ###
+#   Print the "related" page for eboards
+
+my $num = shift;
+my $digits = $num;
+if ($num < 10) {
+  $digits = "0$num";
+}
+
+print <<"EBR";
+* [EBoard $num](../eboards/eboard.$digits.html)
+  ([Source $num](../eboards/eboard.$digits.md))
+  ([HTML $num](../eboards/eboard.$digits.html))
+  ([PDF $num](../eboards/eboard.$digits.pdf))
+EBR
