@@ -1,0 +1,210 @@
+#!/usr/bin/perl
+
+# db2md
+#   A simple set of hacks to translate some parts of Docbook files
+#   to Markdown
+
+# +-------+-----------------------------------------------------------
+# | Notes |
+# +-------+
+
+# Most of the implementation is done via a global search and replace for a 
+# variety of patterns.  
+ 
+# Unfortunately, search and replace doesn't work so well for section
+# headings or list items because we need to deal with those line by
+# line (increment the level when we see an opening tag, decrement the
+# level when we see a closing tag).  For such situations, we use a
+# two-step process: First we convert to some common pattern (e.g.,
+# SECTION:BEGIN or SECTION:END, both of which start with SECTION)
+# and then we process all of the elements that meet that pattern.
+
+# +---------+---------------------------------------------------------
+# | Globals |
+# +---------+
+
+# The nesting level of the section tags.
+$sectlevel = 0;
+
+# The nesting level of list tags.
+$listlevel = 0;
+
+# +------+------------------------------------------------------------
+# | Main |
+# +------+
+
+$_ = readStdin();
+
+# Sections 
+#   Note: As described above, in the first few patterns, we build 
+#   comment forms for processing.  In the next few patterns, we 
+#   execute them.
+s/<section.*?>.*?<title>(.*)<\/title>/<##SECTION##:BEGIN,$1\/>/g;
+s/<\/section[^>]*>.*\n/<##SECTION##:END\/>/g;
+s/<##SECTION##:(.*?)\/>$/sectionMunge($1)/gme;
+
+# Lists 
+#   Note: Much like sections
+#   Note: Still need some more work
+s/[[:space:]]*<itemizedlist.*?>[[:space:]]*\n?/<##LIST##:BEGIN\/>/g;
+s/[[:space:]]*<\/itemizedlist>[[:space:]]*\n?/<##LIST##:END\/>/g;
+s/[[:space:]]*<listitem.*?>[[:space:]]*\n?/<##LIST##:ITEM\/>/g;
+s/[[:space:]]*<\/listitem>[[:space:]]*\n?//g;
+s/<##LIST##:(.*?)\/>/listMunge($1)/gme;
+
+# Links 
+s/<ulink .*?url="([^"]*)"\/>/<\1>/g;
+s/<ulink .*?url="([^"]*)".*?>(.*?)<\/ulink>/[\2](\1)/g;
+
+# Definition lists
+#   Not yet implemented.
+
+# Emphasis
+s/<emphasis>/*/g;
+s/<\/emphasis>/*/g;
+
+# Quotes
+s/<quote>/"/gi;
+s/<\/quote>/"/gi;
+
+# Super and subscripts (not implemented in md, so leave as is
+# s/<subscript>/_/g;
+# s/<\/subscript>//g;
+# s/<superscript>/^/g;
+# s/<\/superscript>//g;
+
+# Drop double blank lines
+s/\n[[:space:]]*\n[[:space:]]*\n/\n\n/g;
+
+# Code
+s/<code>/`/g;
+s/<\/code>/`/g;
+
+# Preformatted sections
+s/<programlisting>/<pre>/g;
+s/<\/programlisting>/<\/pre>/g;
+s/<screen>/<pre>/g;
+s/<\/screen>/<\/re>/g;
+
+# Other kinds of code
+s/<methodname>/`/g;
+s/<\/methodname>/`/g;
+s/<function>/`/g;
+s/<\/function>/`/g;
+s/<parameter>/`/g;
+s/<\/parameter>/`/g;
+
+# Block quotes
+s/<blockquote>\n?(.*?)<\/blockquote>\n/blockQuote($1)/gse;
+
+# And we're done
+print $_;
+
+# +---------+---------------------------------------------------------
+# | Helpers |
+# +---------+
+
+# blockQuote(txt)
+#   Present txt in Markdown blockquote format
+sub blockQuote($)
+{
+  my $txt = shift;
+  $txt =~ s/^/> /g;
+  return $txt;
+} # blockQuote
+
+# listMunge(data)
+#   Begin, end, or deal with an entry in a list.
+sub listMunge()
+{
+  my $data = shift;
+  my ($type,$title) = split(",", $data);
+  if ($type eq "BEGIN") {
+    ++$listlevel;
+    return "";
+  }
+  elsif ($type eq "END") {
+    --$listlevel;
+    return "";
+  }
+  elsif ($type eq "ITEM") {
+    print STDERR "Level " . $listlevel . "item.\n";
+    return "\n" . nchars(" ", 4*($listlevel-1)) . "* ";
+  }
+  else {
+   return "??? $data ???";
+  }
+} # listMunge
+
+# readStdin()
+#   Read all of standard input
+sub readStdin()
+{
+  my $linesep = $/; # Save for later
+  undef $/; # When $/ is undefined, read reads the wholefile
+  my $contents = <>;
+  $/ = $linesep; # Restore
+  return $contents;
+} # readStdin
+
+# sectionBegin(title)
+#   Begin a section
+sub sectionBegin($)
+{
+  my $title = shift;
+  ++$sectlevel;
+  if ($sectlevel == 1) {
+    return underline($title, "=") . "\n\n";
+  }
+  elsif ($sectlevel == 2) {
+    return underline($title, "-") . "\n\n";
+  }
+  else {
+    return nchars("#", $sectlevel) . " $title" . "\n\n";
+  }
+} # sectionBegin
+
+# sectionEnd()
+#   End a section
+sub sectionEnd()
+{
+  $sectlevel--;
+  return "";
+} # sectionEnd
+
+# sectionMunge(data)
+#   Either begin or end a section.  (Part of a strange hack.)
+sub sectionMunge()
+{
+  my $data = shift;
+  my ($type,$title) = split(",", $data);
+  if ($type eq "BEGIN") {
+    return sectionBegin($title);
+  }
+  elsif ($type eq "END") {
+    return sectionEnd();
+  }
+  else {
+    return "??? $type ???\n";
+  }
+} # sectionMunge
+
+sub underline {
+  my $line = shift;
+  my $under = shift;
+  chomp($line);
+  return $line . "\n" . nchars($under, length($line)) . "\n\n";
+} # underline
+
+# nchars(char, n)
+#   Create a string of n copies of char
+sub nchars {
+  my $chars = shift;
+  my $n = shift;
+  my $len = 1;
+  while ($len < $n) {
+    $chars = $chars . $chars;
+    $len = $len * 2;
+  }
+  return substr($chars, 0, $n);
+} # nchars
