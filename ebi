@@ -1,0 +1,20 @@
+#!/usr/bin/perl
+
+# ebi ###
+#   Make a section of an index of eboards
+
+my $num = shift;
+my $digits = $num;
+if (($num =~ m/^[0-9]*$/) && ($num < 10)) {
+  $digits = "0$num";
+}
+
+print <<"EBI";
+  <listitem>
+    Class $num: <ulink url="eboard.$digits.html">&title$digits;</ulink> (&date$digits;)
+    <break/>
+    [<ulink url="eboard.$digits.md">Source $num</ulink>]
+    [<ulink url="eboard.$digits.html">HTML $num</ulink>]
+    [<ulink url="eboard.$digits.pdf">PDF $num</ulink>]
+  </listitem>
+EBI
