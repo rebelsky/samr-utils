@@ -1,0 +1,187 @@
+#!/usr/bin/perl
+
+# sw2md
+#   A simple set of hacks to translate some parts of Siteweaver files
+#   to Markdown
+
+# +---------+---------------------------------------------------------
+# | Globals |
+# +---------+
+
+# The nesting level of the section tags.
+$level = 0;
+
+# +------+------------------------------------------------------------
+# | Main |
+# +------+
+
+$_ = readStdin();
+
+# Sections 
+#   Note: In the first few patterns, we build instructions.  In
+#   the next few patterns, we execute them.
+s/^<section name="([^"]*)" title="([^"]*)">/SECTION:BEGIN,$2/g;
+s/<section name="([^"]*)" title="([^"]*)">/SECTION:BEGIN,$2/g;
+s/<section title="([^"]*)">/SECTION:BEGIN,$1/g;
+s/<\/section[^>]*>.*\n/SECTION:END/g;
+
+s/SECTION:(.*)$/sectionMunge($1)/gme;
+
+# Links (still need to be rearranged)
+s/<a href="([^"]*)">/[](\1)/g;
+
+# List items (partial translation)
+# s/^[[:space:]]*\* /* /gms;
+# s/^[[:space:]]*\+ /    * /gms;
+# s/^[[:space:]]*\- /        * /gms;
+s/^[[ \t]]*\* /* /gms;
+s/^[[ \t]]*\+ /    * /gms;
+s/^[[ \t]]*\- /        * /gms;
+
+# Other lists
+s/<ol>//g;
+s/<\/ol>//g;
+s/<li>/* /g;
+s/<\/li>/* /g;
+
+# Definition lists
+s/<dl>//g;
+s/<\/dl>//g;
+s/<dt>/**/g;
+s/<\/dt>/**/g;
+s/<dd>/* /g;
+s/<\/dd>/* /g;
+
+# Emphasis
+s/<strong><em>/***/g;
+s/<\/em><\/strong>/***/g;
+s/<strong>/**/g;
+s/<\/strong>/**/g;
+s/<em>/*/g;
+s/<\/em>/*/g;
+s/<i>/*/gi;
+s/<\/i>/*/gi;
+s/<b>/**/gi;
+s/<\/b>/**/gi;
+
+# Quotes
+s/<q>/"/gi;
+s/<\/q>/"/gi;
+
+# My weirdo links
+s/<!--{<([^>]*)>}-->/<\1>/g;
+
+# Super and subscripts (not implemented in md, so leave as is
+# s/<sub>/_/g;
+# s/<\/sub>//g;
+# s/<sup>/^/g;
+# s/<\/sup>//g;
+
+# Drop double blank lines
+s/\n[[:space:]]*\n[[:space:]]*\n/\n\n/g;
+
+# Code
+s/<code>/`/g;
+s/<\/code>/`/g;
+
+# Other kinds of code
+s/<boxcode>/<pre>/g;
+s/<\/boxcode>/<\/pre>/g;
+s/<kbd>//g;
+s/<\/kbd>//g;
+s/<schemeresult>//g;
+s/<\/schemeresult>//g;
+s/<schemeoutput>//g;
+s/<\/schemeoutput>//g;
+
+# Block quotes
+s/<blockquote>\n?(.*?)<\/blockquote>\n/blockQuote($1)/gse;
+
+# And we're done
+print $_;
+
+# +---------+---------------------------------------------------------
+# | Helpers |
+# +---------+
+
+# blockQuote(txt)
+#   Present txt in Markdown blockquote format
+sub blockQuote($)
+{
+  my $txt = shift;
+  $txt =~ s/^/> /g;
+  return $txt;
+} # blockQuote
+
+# readStdin()
+#   Read all of standard input
+sub readStdin()
+{
+  my $linesep = $/; # Save for later
+  undef $/; # When $/ is undefined, read reads the wholefile
+  my $contents = <>;
+  $/ = $linesep; # Restore
+  return $contents;
+} # readStdin
+
+# sectionBegin(title)
+#   Begin a section
+sub sectionBegin($)
+{
+  my $title = shift;
+  ++$level;
+  if ($level == 1) {
+    return underline($title, "=") . "\n\n";
+  }
+  elsif ($level == 2) {
+    return underline($title, "-") . "\n\n";
+  }
+  else {
+    return nchars("#", $level) . " $title" . "\n\n";
+  }
+} # sectionBegin
+
+# sectionEnd()
+#   End a section
+sub sectionEnd()
+{
+  $level--;
+  return "";
+} # sectionEnd
+
+# sectionMunge(data)
+#   Either begin or end a section.  (Part of a strange hack.)
+sub sectionMunge()
+{
+  my $data = shift;
+  my ($type,$title) = split(",", $data);
+  if ($type eq "BEGIN") {
+    return sectionBegin($title);
+  }
+  elsif ($type eq "END") {
+    return sectionEnd();
+  }
+  else {
+    return "??? $type ???\n";
+  }
+} # sectionMunge
+
+sub underline {
+  my $line = shift;
+  my $under = shift;
+  chomp($line);
+  return $line . "\n" . nchars($under, length($line)) . "\n\n";
+} # underline
+
+# nchars(char, n)
+#   Create a string of n copies of char
+sub nchars {
+  my $chars = shift;
+  my $n = shift;
+  my $len = 1;
+  while ($len < $n) {
+    $chars = $chars . $chars;
+    $len = $len * 2;
+  }
+  return substr($chars, 0, $n);
+} # nchars
