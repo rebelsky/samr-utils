@@ -52,12 +52,16 @@ s/[[:space:]]*<listitem.*?>[[:space:]]*\n?/<##LIST##:ITEM\/>/g;
 s/[[:space:]]*<\/listitem>[[:space:]]*\n?//g;
 s/<##LIST##:(.*?)\/>/listMunge($1)/gme;
 
+# Definition lists
+#   Not yet implemented.
+
 # Links 
 s/<ulink .*?url="([^"]*)"\/>/<\1>/g;
 s/<ulink .*?url="([^"]*)".*?>(.*?)<\/ulink>/[\2](\1)/g;
 
-# Definition lists
-#   Not yet implemented.
+# Paragraphs.
+s/ *<para> *//g;
+s/ *<\/para> *//g;
 
 # Emphasis
 s/<emphasis>/*/g;
@@ -128,7 +132,6 @@ sub listMunge()
     return "";
   }
   elsif ($type eq "ITEM") {
-    print STDERR "Level " . $listlevel . "item.\n";
     return "\n" . nchars(" ", 4*($listlevel-1)) . "* ";
   }
   else {

@@ -27,8 +27,8 @@ s/<\/section[^>]*>.*\n/SECTION:END/g;
 
 s/SECTION:(.*)$/sectionMunge($1)/gme;
 
-# Links (still need to be rearranged)
-s/<a href="([^"]*)">/[](\1)/g;
+# Links
+s/<a href="([^"]*)">(.*?)<\/a>/[\2](\1)/g;
 
 # List items (partial translation)
 # s/^[[:space:]]*\* /* /gms;
