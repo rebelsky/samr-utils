@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# ctab prefix Text
+# tab prefix Text
 #   Creates one of the tabs that Sam likes to use when writing Java
 #   code (or code in other languages).
 
@@ -18,7 +18,7 @@ if (!$TABLEN) { $TABLEN = 70; }
 
 # The comment character
 my $comment = shift;
-my $comlen = length($COMMENT);
+my $comlen = length($comment);
 
 # The text
 my $text = join(" ", @ARGV);

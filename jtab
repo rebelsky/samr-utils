@@ -4,4 +4,4 @@
 #  Create one of Sam's "comment tabs" for Java
 
 my $text = join(" ", @ARGV);
-system("tab '//' $text");
+system("tab '  //' $text");
