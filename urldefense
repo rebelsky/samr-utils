@@ -1,0 +1,32 @@
+#!/usr/bin/perl
+
+# urldefense
+#   Undoes the horrid urldefense.proofpoint.com URLs
+#   Reads input from stdin.
+#   Sends output to stdout.
+
+use URI::Escape;
+
+while (<STDIN>)
+{
+  chomp($_);
+  s/https:\/\/urldefense.proofpoint.com\/v2\/url\?u=([^ ]*)/fixurl($1)/ge;
+  print $_;
+  print "\n";
+}
+
+sub fixurl($)
+{
+  $line = shift;
+  print STDERR "Fixing '$line'\n";
+  $line =~ s/https:\/\/urldefense.proofpoint.com\/v2\/url\?u=//g;
+  $line =~ s/\&[^ ]*//;
+  $line =~ s/_/\//g;
+  $line =~ s/-/%/g;
+  $line = uri_unescape($line);
+  print STDERR "Result '$line'\n";
+  return $line;
+} # fix
+
+  # https://urldefense.proofpoint.com/v2/url?u=https-3A__en.wikipedia.org_wiki_Dual-5FEC-5FDRBG&d=BQIBJQ&c=HUrdOLg_tCr0UMeDjWLBOM9lLDRpsndbROGxEKQRFzk&r=6rcUljFJZnpk5uomPd3v3WCzboqh0RuwO-BZyxMfi0U&m=pddh_5pEbs4rVN5zeguIoWKr-6wT1YCIwkk0P5mETxA&s=e6Key4G7silz3-zwwRLzQIaTQhLLxAKFWdk1tfJ1opk&e= 
+
