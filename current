@@ -1,0 +1,70 @@
+#!/usr/bin/perl
+
+# A quick hack to build the current.html (or current.txt) that I use in
+# my course Webs.
+
+# Grab the info and drop an ending period
+my $info = $ARGV[0];
+$info =~ s/\.$//;
+
+# The file prefix
+my $prefix = "";
+
+# The list of suffixes
+my @suffixes = ( "pdf", "ps", "html", "txt", "sect", "md", "ent" );
+
+# Remove the existing current files, if they exist
+foreach $suffix (@suffixes) {
+  if (-f "current.$suffix") { 
+    system("rm -f current.$suffix"); 
+  } # if the file exists
+} # foreach
+
+# First and most natural option: Outlines
+if (-f "outline.$info.html") {
+  $prefix = "outline.$info";
+}
+# Next option: Assignments
+elsif (-f "assignment.$info.html") {
+  $prefix = "assignment.$info";
+}
+# Next options: Quizzes (note: I'm not at the point in which a foreach loop
+# would be good).
+elsif (-f "quiz.$info.html") {
+  $prefix = "quiz.$info";
+}
+# Next option: We've just given the name of the file to symlink
+elsif (-f "$info.html") {
+  $prefix = "$info";
+}
+# Next option: It's a text file (probably an eboard).
+elsif (-f "$info.txt") {
+  $prefix = "$info";
+}
+# Next option: It's an md file (probably an eboard)
+elsif (-f "$info.md") {
+  $prefix = "$info";
+}
+# Next option: Another kind of eboard
+elsif (-f "eboard.$info.md") {
+  $prefix = "eboard.$info";
+}
+# Next option, a full file name
+elsif (-f "$info") {
+  $prefix = $info;
+  $prefix =~ s/\.[^.]*$//;
+}
+# Final option: Unknown
+else {
+  print "Cannot find source file.\n";
+  exit 1;
+}
+
+# We've now found the prefix, so make any possible links
+foreach $suffix (@suffixes) {
+  if (-f "$prefix.$suffix") { 
+    print "Linking $prefix.$suffix to current.$suffix\n";
+    symlink("$prefix.$suffix", "current.$suffix"); 
+  }
+} # foreach
+exit 0;
