@@ -1,0 +1,100 @@
+#!/usr/bin/perl
+
+# ebj NUM
+#   Create the sketchy eboard for the given outline, assuming that it
+#   does not exist.  (Designed for Sam's Jekyll courses.)
+
+# Figure out the course id
+my $courseid = `grep '^courseid:' ../_config.yml | sed -e 's/^.*: //'`;
+chomp($courseid);
+
+# Grab the course number
+my $num = $ARGV[0];
+
+# Determine the file name
+my $fname = "eboard.$num.md";
+if (-f $fname) {
+  print STDERR "Eboard $fname already exists!\n";
+  exit 1;
+} # if file exists
+
+# Find the entry
+my $count = 0;
+my $found = 0;
+my $line;
+open CLASSES, "../_data/classes.yml";
+while (($count < $num) && ($line = <CLASSES>)) {
+  if ($line =~ m/^- topic:/) {
+    ++$count;
+  } #
+} # while
+if (! $line) {
+  print STDERR "Could not find entry $num\n";
+  exit 1;
+} # if (! $line)
+
+# Figure out the title
+my $title = $line;
+chomp($title);
+$title =~ s/^[^:]*://;
+
+# Preliminary liquid
+my $held = `date "+%Y-%m-%d"`;
+chomp($held);
+fappend($fname,"---");
+fappend($fname,"title: Eboard $num $title");
+fappend($fname,"number: $num");
+fappend($fname,"section: eboards");
+fappend($fname,"held: $held");
+fappend($fname,"---");
+
+# Page title
+my $head = "$courseid, Class $num: $title\n";
+system("echo \"$head\" | ul '=' >> $fname");
+fappend($fname,"");
+
+my @subjects;
+
+# Print the overview
+fappend($fname, "_Overview_");
+fappend($fname, "");
+fappend($fname, "* Preliminaries");
+fappend($fname, "    * Notes and news");
+fappend($fname, "    * Upcoming work");
+fappend($fname, "    * Extra credit");
+fappend($fname, "    * Questions");
+
+# Print the rest of the overview
+while (($line = <CLASSES>) ne "\n") {
+  if ($line =~ m/^ *- [^\/]/) {
+    my $entry = $line;
+    chomp($entry);
+    $entry =~ s/^ *- //;
+    push @subjects, $entry;
+    fappend($fname, "* $entry");
+  }  # if
+} # while
+
+fappend($fname, "");
+
+# Add the daily preliminaries
+system("cat ../_prelim/prelim.$num.md | solid >> $fname");
+fappend($fname, "");
+
+# Add the questions
+fappend($fname, "### Questions");
+fappend($fname, "");
+
+# Add the section headings
+foreach $subject (@subjects) {
+  system("echo \"$subject\" | ul >> $fname");
+  fappend($fname, "");
+} # foreach
+exit 0;
+
+sub fappend($$) {
+  my ($fname,$str) = @_;
+  my $command = "echo \"$str\" >> $fname";
+  # print STDERR "$command\n";
+  system($command);
+}
