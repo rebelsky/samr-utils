@@ -1,0 +1,15 @@
+#!/usr/bin/perl
+
+# solid
+#   Strip introductory liquid stuff
+my $line = <STDIN>;
+if ($line eq "---\n") {
+  while (($line = <STDIN>) ne "---\n") {
+  } # while
+  $line = <STDIN>;
+} # if
+
+print $line;
+while ($line = <STDIN>) {
+  print $line;
+}
