@@ -1,0 +1,7 @@
+#!/usr/bin/perl
+
+# rtab Some Text
+#  Create one of Sam's "comment tabs" for Ruby
+
+my $text = join(" ", @ARGV);
+system("tab '#' $text");
