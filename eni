@@ -1,0 +1,62 @@
+#!/usr/bin/perl
+
+# eni N
+#   Increment endnotes whose value is greater than or equal to N.
+
+# Determine the staring number
+my $n = $ARGV[0] + 0;
+
+# Read the contents
+my $contents;
+$contents = readPort(STDIN);
+
+# Update
+$contents =~ s/(\[([0-9]*\,?)*])/eni($1)/gme;
+print $contents;
+exit 0;
+
+# +-------------+-----------------------------------------------------
+# | Subroutines |
+# +-------------+
+
+# Read in the contents of a file.
+sub readFile
+{
+  my $filename = shift;
+  open(PORT, "< $filename");
+  my $contents = readPort(PORT);
+  close(PORT);
+  return $contents;
+} # readFile
+
+# Read in the contents of a port.
+sub readPort
+{
+  my $PORT = shift;
+  my $linesep = $/;     # Save for later
+  undef $/;             # When %/ is undefined, read reads the whole file
+  my $contents = <$PORT>;
+  $/ = $linesep;        # Restore
+  return $contents;
+} # readPort
+
+sub eni 
+{
+  my $str = shift;
+  $str =~ s/([0-9]+)/inc($1)/ge;
+  return $str;
+} # eni
+
+sub inc
+{
+  my $num = shift;
+  if ($num >= $n) {
+    $num = $num+1;
+  }
+  if ($num == 13) {
+    $num = 14;
+  }
+  return $num;
+} # inc
+
+# [1] 2 3 [4] [5,6] [7] [8,9,10,11] [12] [14]
