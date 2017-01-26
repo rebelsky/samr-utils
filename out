@@ -1,17 +1,25 @@
 #!/usr/bin/perl
-# out NUM
+# out START FINISH
 #   Make the specified outline
 
-my $num = $ARGV[0];
-my $shortnum = $num + 0;
+my $start = $ARGV[0];
+my $finish = $ARGV[1];
+if (!$finish) { $finish = $start; }
 
-open OUTLINE, ">", "outline.$num.md";
-print OUTLINE<<"CONTENTS";
+for ($num = $start; $num <= $finish; $num++) {
+  $num = $num + 0;
+  $shortnum = $num;
+  if ($num < 10) { $num = "0$num"; }
+  $fname = "outline.$num.md";
+  if (! -f $fname) {
+    open OUTLINE, ">", "outline.$num.md";
+    print OUTLINE<<"CONTENTS";
 ---
 title: Outline $shortnum
-number: $num
-held: 2017-06-30
+number: $shortnum
 link: false
 ---
 {% include outline.md %}
 CONTENTS
+  } # if
+} # for
