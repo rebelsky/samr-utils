@@ -56,15 +56,15 @@ s/<##LIST##:(.*?)\/>/listMunge($1)/gme;
 #   Not yet implemented.
 
 # Links 
-s/<ulink .*?url="([^"]*)"\/>/<\1>/g;
-s/<ulink .*?url="([^"]*)".*?>(.*?)<\/ulink>/[\2](\1)/g;
+s/<ulink[ \t\n]*?url="([^"]*)"\/>/<\1>/gs;
+s/<ulink[ \t\n]*?url="([^"]*)".*?>(.*?)<\/ulink>/[\2](\1)/gs;
 
 # Paragraphs.
 s/ *<para> *//g;
 s/ *<\/para> *//g;
 
 # Emphasis
-s/<emphasis>/*/g;
+s/<emphasis[^>]*>/*/g;
 s/<\/emphasis>/*/g;
 
 # Quotes
@@ -100,6 +100,22 @@ s/<\/parameter>/`/g;
 
 # Block quotes
 s/<blockquote>\n?(.*?)<\/blockquote>\n/blockQuote($1)/gse;
+
+# A bunch of random stuff
+s/<guilabel>/"/g;
+s/<\/guilabel>/"/g;
+s/<keycap>/"/g;
+s/<\/keycap>/"/g;
+s/<guibutton>/"/g;
+s/<\/guibutton>/"/g;
+s/<guimenu>/"/g;
+s/<\/guimenu>/"/g;
+s/<guimenuitem>/"/g;
+s/<\/guimenuitem>/"/g;
+s/<userinput>/"`/g;
+s/<\/userinput>/`"/g;
+s/<command>/__/g;
+s/<\/command>/__/g;
 
 # And we're done
 print $_;
