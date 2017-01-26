@@ -1,0 +1,17 @@
+#!/usr/bin/perl
+# out NUM
+#   Make the specified outline
+
+my $num = $ARGV[0];
+my $shortnum = $num + 0;
+
+open OUTLINE, ">", "outline.$num.md";
+print OUTLINE<<"CONTENTS";
+---
+title: Outline $shortnum
+number: $num
+held: 2017-06-30
+link: false
+---
+{% include outline.md %}
+CONTENTS
