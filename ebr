@@ -13,5 +13,4 @@ print <<"EBR";
 * [EBoard $num](../eboards/eboard.$digits.html)
   ([Source $num](../eboards/eboard.$digits.md))
   ([HTML $num](../eboards/eboard.$digits.html))
-  ([PDF $num](../eboards/eboard.$digits.pdf))
 EBR

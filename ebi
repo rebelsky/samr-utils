@@ -10,11 +10,12 @@ if (($num =~ m/^[0-9]*$/) && ($num < 10)) {
 }
 
 print <<"EBI";
-  <listitem>
-    Class $num: <ulink url="eboard.$digits.html">&title$digits;</ulink> (&date$digits;)
-    <break/>
-    [<ulink url="eboard.$digits.md">Source $num</ulink>]
-    [<ulink url="eboard.$digits.html">HTML $num</ulink>]
-    [<ulink url="eboard.$digits.pdf">PDF $num</ulink>]
-  </listitem>
+  <tr>
+    <td>Class $num</td>
+    <td>&day$digits;</td>
+    <td>&cal$digits;</td>
+    <td><ulink url='eboard.$digits.html'>&title$digits;</ulink></td>
+    <td><ulink url='eboard.$digits.md'>Source $num</ulink></td>
+    <td><ulink url='eboard.$digits.html'>HTML $num</ulink></td>
+  </tr>
 EBI
