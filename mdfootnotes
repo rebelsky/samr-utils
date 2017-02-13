@@ -6,8 +6,13 @@
 my $contents;
 if ($#ARGV >= 0) { $contents = readFile($ARGV[0]); }
 else { $contents = readPort(STDIN); }
+
+# Targets
 $contents =~ s/ *\n *\n\[([0-9]*)\]:?/\n\n[<a href="#reference\1" id="referent\1">\1<\/a>]/gm;
+
+# Sources
 $contents =~ s/ \[([0-9]*)\]/ [<a href="#referent\1" id="reference\1">\1<\/a>]/gm;
+$contents =~ s/^\[([0-9]*)\]/[<a href="#referent\1" id="reference\1">\1<\/a>]/gm;
 $contents =~ s/ \[([0-9]*),([0-9]*)]/ [<a href="#referent\1" id="reference\1">\1<\/a>,<a href="#referent\2" id="reference\2">\2<\/a>]/gm;
 $contents =~ s/^\[([0-9]*),([0-9]*)]/[<a href="#referent\1" id="reference\1">\1<\/a>,<a href="#referent\2" id="reference\2">\2<\/a>]/gm;
 $contents =~ s/ \[([0-9]*),([0-9]*),([0-9]*)]/ [<a href="#referent\1" id="reference\1">\1<\/a>,<a href="#referent\2" id="reference\2">\2<\/a>,<a href="#referent\3" id="reference\3">\3<\/a>]/gm;
