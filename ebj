@@ -87,6 +87,7 @@ fappend($fname, "");
 
 # Add the section headings
 foreach $subject (@subjects) {
+  $subject =~ s/`/\\`/g;
   system("echo \"$subject\" | ul >> $fname");
   fappend($fname, "");
 } # foreach
@@ -94,6 +95,7 @@ exit 0;
 
 sub fappend($$) {
   my ($fname,$str) = @_;
+  $str =~ s/`/\\`/g;
   my $command = "echo \"$str\" >> $fname";
   # print STDERR "$command\n";
   system($command);
