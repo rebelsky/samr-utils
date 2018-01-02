@@ -1,0 +1,52 @@
+#!/usr/bin/perl
+
+# mdfootnotes FILE
+#   Handle footnotes in a file.
+
+my $contents;
+if ($#ARGV >= 0) { $contents = readFile($ARGV[0]); }
+else { $contents = readPort(STDIN); }
+
+# Targets
+$contents =~ s/ *\n *\n\[([0-9]+)\]:?/\n\n[<a href="#reference\1" id="referent\1">\1<\/a>]/gm;
+
+# Sources
+$contents =~ s/ \[([0-9]+)\]/ [<a href="#referent\1" id="reference\1">\1<\/a>]/gm;
+$contents =~ s/^\[([0-9]+)\]/[<a href="#referent\1" id="reference\1">\1<\/a>]/gm;
+$contents =~ s/ \[([0-9]+),([0-9]+)]/ [<a href="#referent\1" id="reference\1">\1<\/a>,<a href="#referent\2" id="reference\2">\2<\/a>]/gm;
+$contents =~ s/^\[([0-9]+),([0-9]+)]/[<a href="#referent\1" id="reference\1">\1<\/a>,<a href="#referent\2" id="reference\2">\2<\/a>]/gm;
+$contents =~ s/ \[([0-9]+),([0-9]+),([0-9]+)]/ [<a href="#referent\1" id="reference\1">\1<\/a>,<a href="#referent\2" id="reference\2">\2<\/a>,<a href="#referent\3" id="reference\3">\3<\/a>]/gm;
+print $contents;
+exit 0;
+
+# :1,$s/\(\n\n\[[0-9]+\]\)[^:]/\1:/
+
+# :1,$s/\[\([0-9]+\),\([0-9]+\)\]/[\1][\2]/g
+
+# :1,$s/\[\([0-9]+\)\]/[^\1]/g
+
+
+# +-------------+-----------------------------------------------------
+# | Subroutines |
+# +-------------+
+
+# Read in the contents of a file.
+sub readFile
+{
+  my $filename = shift;
+  open(PORT, "< $filename");
+  my $contents = readPort(PORT);
+  close(PORT);
+  return $contents;
+} # readFile
+
+# Read in the contents of a port.
+sub readPort
+{
+  my $PORT = shift;
+  my $linesep = $/;     # Save for later
+  undef $/;             # When %/ is undefined, read reads the whole file
+  my $contents = <$PORT>;
+  $/ = $linesep;        # Restore
+  return $contents;
+} # readPort

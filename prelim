@@ -1,0 +1,28 @@
+#!/usr/bin/perl
+# prelim START FINISH
+#   Make the specified preliminaries
+
+my $start = $ARGV[0];
+my $finish = $ARGV[1];
+if (!$finish) { $finish = $start; }
+
+for ($num = $start; $num <= $finish; $num++) {
+  $num = $num + 0;
+  $shortnum = $num;
+  if ($num < 10) { $num = "0$num"; }
+  $fname = "prelim.$num.md";
+  if (! -f $fname) {
+    open PRELIM, ">", "$fname";
+    print PRELIM<<"CONTENTS";
+---
+title: Preliminaries for class $shortnum
+section: prelim
+---
+### News / Etc.
+
+### Upcoming work
+
+### Good things to do
+CONTENTS
+  } # if
+} # for
