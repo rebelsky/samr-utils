@@ -1,0 +1,10 @@
+#!/usr/bin/perl
+
+print<<"END";
+int
+main (int argc, char *argv[])
+{
+  // We're done
+  return 0;
+} // main
+END

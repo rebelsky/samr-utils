@@ -1,0 +1,23 @@
+#!/usr/bin/perl
+# randomize 
+#   Read lines from stdin
+#   Print them out in random order
+
+@lines = ();
+while ($line = <>) {
+  push @lines, ($line);
+}
+
+$len = $#lines;
+
+for ($i = 0; $i <= $len; $i++) {
+  $r = int(rand($len));
+  # print "Swap $i and $r\n";
+  $tmp =$lines[$i];
+  $lines[$i] = $lines[$r];
+  $lines[$r] = $tmp;
+}
+
+for ($i = 0; $i <= $len; $i++) {
+  print $lines[$i];
+}

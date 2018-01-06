@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# A quick hack to format Scheme comments (I hope)
+
+sed -e 's/^; //' | fmt | sed -e 's/^/; /'

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# A quick hack to format included Scheme code
+
+sed -e 's/^/;;   /'

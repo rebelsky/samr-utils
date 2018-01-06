@@ -1,0 +1,728 @@
+#!/usr/bin/perl
+
+# +---------+--------------------------------------------------------
+# | Globals |
+# +---------+
+
+# First names.  Used to determine whether or not we rearrange.
+my @firstNames = (
+  "Abi",
+  "Abigail",
+  "Abby",
+  "Aimee",
+  "Al",
+  "Alex",
+  "Ali",
+  "Alice",
+  "Alison",
+  "Allison",
+  "Amanda",
+  "Amber",
+  "Amy",
+  "Anat",
+  "Andi",
+  "Andrew",
+  "Andy",
+  "Angel",
+  "Ann",
+
+  "Barbara",
+  "Barbra",
+  "Bela",
+  "Belinda",
+  "Bev",
+  "Beverly",
+  "Bill",
+  "Billie",
+  "Billy",
+  "Bo",
+  "Bob",
+  "Boo",
+  "Bootsy",
+  "Brandi",
+  "Brandy",
+  "Brett",
+  "Brian",
+  "Bruce",
+  "Bryan",
+  "Buddy",
+  "Butch",
+
+  "Cal",
+  "Cara",
+  "Carla",
+  "Casey",
+  "Cassandra",
+  "Cassie",
+  "Cath",
+  "Cathy",
+  "Charlie",
+  "Chip",
+  "Chris",
+  "Chrissie",
+  "Cindi",
+  "Cindy",
+  "Claire",
+  "Colman",
+  "Courtney",
+  "Curt",
+  "Curtis",
+  "Cyndi",
+  "Cyro",
+
+  "Dalton",
+  "Dan",
+  "Daniel",
+  "Darden",
+  "Dave",
+  "David",
+  "Davis",
+  "Deb",
+  "Deborah",
+  "Debra",
+  "Dolly",
+  "Don",
+  "Donald",
+  "Dori",
+
+  "Earl",
+  "Ed",
+  "Eddie",
+  "Edie",
+  "Edward",
+  "Ella",
+  "Ellen",
+  "Eliza",
+  "Elizabeth",
+  "Elkie",
+  "Elvis",
+  "Emily",
+  "Emitt",
+  "Emmylou",
+  "Eric",
+  "Erin",
+  "Ernie",
+  "Esther",
+
+  "Fred",
+  "Freddy",
+  "Freddie",
+  
+  "Garnet",
+  "Gord",
+  "Gordan",
+  "Gordie",
+  "Graham",
+  "Grant",
+  "Greg",
+  "Gregg",
+
+  "Hanna",
+  "Hannah",
+  "Hanneke",
+  "Hani",
+
+  "Ian",
+  "Ike",
+  "India",
+  "Irene",
+
+  "Jack",
+  "Jackie",
+  "Jacob",
+  "Jackson",
+  "Jake",
+  "Jan",
+  "Jane",
+  "Janie",
+  "Jarod",
+  "Jarrod",
+  "Jason",
+  "Jeff",
+  "Jennifer",
+  "Jerod",
+  "Jerrod",
+  "Jerry",
+  "Jessica",
+  "Jim",
+  "Jimi",
+  "Jimmy",
+  "Jimmie",
+  "Jo",
+  "Joan",
+  "Jodi",
+  "Jodie",
+  "Joe",
+  "Joey",
+  "John",
+  "Johnny",
+  "Jon",
+  "Joni",
+  "Joseph",
+  "Joy",
+  "Judy",
+  "Jules",
+  "Julie",
+  "Julian",
+  "Juliana",
+
+  "Kathy",
+  "Kay",
+  "Kelley",
+  "Kelly",
+  "Kim",
+  "Kimmie",
+  "Kirsten",
+  "Kris",
+  "Kristen",
+  "Kristin",
+  "Kurt",
+
+  "Laura",
+  "Lauren",
+  "Laurie",
+  "Lee",
+  "Leon",
+  "Lew",
+  "Liam",
+  "Lilly",
+  "Lily",
+  "Linda",
+  "Lita",
+  "Liz",
+  "Liza",
+  "Lizz",
+  "Lizzie",
+  "Lori",
+  "Lorrie",
+  "Lou",
+  "Louis",
+  "Lucinda",
+  "Luka",
+  "Luther",
+  "Lydia",
+
+  "Madeleine",
+  "Mance",
+  "Maggie",
+  "Margo",
+  "Margot",
+  "Marti",
+  "Marvin",
+  "Mary",
+  "Marshall",
+  "Marta",
+  "Marti",
+  "Martin",
+  "Matt",
+  "Matthew",
+  "Mavis",
+  "Melanie",
+  "Melissa",
+  "Micah",
+  "Michael",
+  "Mickey",
+  "Mike",
+  "Mitch",
+  "Mitchell",
+  "Monica",
+
+  "Nancy",
+  "Neil",
+  "Nick",
+  "Nils",
+  "Nora",
+  "Norah",
+  "Norm",
+  "Norma",
+  "Norman",
+
+  "Otis",
+
+  "Patti",
+  "Paul",
+  "Pete",
+  "Peter",
+  "Phil",
+  "Philip", 
+  "Phillip",
+  "PJ",
+
+  "Rachael",
+  "Rachel",
+  "Radney",
+  "Rainer",
+  "Randy",
+  "Rebecca",
+  "Rebecka",
+  "Rich",
+  "Richard",
+  "Rick",
+  "Rita",
+  "Rob",
+  "Robert",
+  "Robin",
+  "Robyn",
+  "Ron",
+  "Ronnie",
+  "Rosemary",
+  "Russell",
+  "Ryan",
+
+  "Sam",
+  "Samuel",
+  "Sara",
+  "Sarah",
+  "Scot",
+  "Scott",
+  "Sean",
+  "Seth",
+  "Shania",
+  "Sharon",
+  "Shelby",
+  "Sonny",
+  "Stephen",
+  "Steve",
+  "Steven",
+  "Sue",
+  "Susan",
+
+  "Teri",
+  "Terry",
+  "Thelonious",
+  "Thomas",
+  "Tim",
+  "Tom",
+  "Trisha",
+
+  "Van",
+  "Vance",
+  "Vernon",
+  "Veronica",
+  "Violet",
+
+  "Wally",
+  "Will",
+  "Willie",
+  "Willy",
+  "William",
+  "Wilson",
+
+  "Xenia",
+);
+
+# Things we ignore.  (Most of these are remnants from an early version.)
+@skip = (
+  "100 Flowers",
+  "10,000 Maniacs",
+  "16 Horsepower",
+  "17 Pygmies",
+  "2 Minutes Hate",
+  "21 Guns",
+  "700 Miles",
+
+  "A House",
+  "Adam Ant",
+  "Aerosmith",
+  "Agnostic Front",
+  "Alpha Stone",
+  "Ambitious Lovers",
+  "Anastasia Screamed",
+  "Apache Dancers",
+  "Arcade Fire",
+  "Aerchers Of Loaf",
+  "Arrested Development",
+  "Artful Dodger",
+  
+  "Babe The Blue Ox",
+  "Baby Shakes",
+  "Back To Back",
+  "Backstreet Girls",
+  "Bananarama",
+  "Band Of Susans",
+  "Bar-B-Q Killers",
+  "Barenaked Ladies",
+  "Bat For Lashes",
+  "Beacon Hillbillies",
+  "Beastie Boys",
+  "Bed Of Eyes",
+  "Benedictine Monks Of Santo Domingo De Silos",
+  "Benzedrine Monks Of Santo Domonica",
+  "Beta Theta Pi The Singing Fraternity",
+  "Better Than Ezra",
+  "Betty Boo",
+  "Big Ass Truck",
+  "Big Audio Dynamite",
+  "Big Bam Boo",
+  "Big Barn Burning",
+  "Big Brother & The Holding Company",
+  "Big Car",
+  "Big Country",
+  "Big Daddy",
+  "Big Dipper",
+  "Big Rig Jacknife",
+  "Big Sandy & His Fly-Rite Boys",
+  "Big Star",
+  "Big Sugar",
+  "Birdsongs Of The Mesozoic",
+  "Black Sun Ensemble",
+  "Black Velvet Flag",
+  "Blame Sally",
+  "Blue Mountain",
+  "Blue Northern",
+  "Blue Room",
+  "Boys With Toys",
+  "Brassissimo Vienna",
+  "Buddy Blue",
+  "Buffy The Vampire Slayer Cast",
+
+  "Calle Sur",
+  "Capping Day",
+  "Captain Beefheart",
+  "Caroline No",
+  "Carpetbaggers",
+  "Carter The Unstoppable Sex Machine",
+  "Cat Heads",
+  "Cerebral Corps",
+  "Certain Distant Suns",
+  "Certain General",
+  "Chain Link Fence",
+  "Chainsaw Kittens",
+  "Chairmen Of The Board",
+  "Cherry Divine",
+  "Cheap Trick",
+  "Chicago Blues Reunion",
+  "Chilli Willi",
+  "Chinese Dog Girls",
+  "Church Key",
+  "Ciccone Youth",
+  "Coffin Lids",
+  "Cold Specks",
+  "Con Brio",
+  "Concrete Blonde",
+  "Cowboy Junkies",
+  "Cracker",
+  "Crooked Still",
+  "Cross Canadian Ragweed",
+
+  "Das Combo",
+  "De Schmog",
+  "Dixie Chicks",
+  "De Danann",
+  "Dead Boys",
+  "Del Amitri",
+  "Derek And The Dominoes",
+  "Disappear Fear",
+  "Dixie Chicks",
+  "Doctor Feelgood",
+  "Drivin' N' Cryin'",
+  "Dr Feelgood",
+  "Dr. Feelgood",
+
+  "Easy Star All Stars",
+  "Eddie From Ohio",
+  "Einstein's Little Homunculus",
+  "Eleanor Rigby & Co. Sing The Kinks",
+  "Eli in Lust",
+  "El Rayo-x",
+  "EL Rayo-X",
+  "End Construction",
+  "England's Glory",
+  "Epic Soundtracks",
+
+  "Fairport Convention",
+  "Fatboy Slim",
+  "Five Eight",
+  "Foo Fighters",
+  "Four Bitchin' Babes",
+  "Franz Ferdinand",
+  "Fountains Of Wayne",
+
+  "Game Theory",
+  "Gang Of Four",
+  "Generation X",
+  "Giant Sand",
+  "Glee Cast",
+  "Go To Blazes",
+  "Guided By Voices",
+  "Galaxie 500",
+  "Generic Blondes",
+  "Good Rats",
+  "Goodbye Mr. Mackenzie",
+  "Green Day",
+  "Green On Red",
+
+  "Harvey Danger",
+  "High Caliber",
+  "Hoodoo Gurus",
+  "Helicopter Helicopter",
+  "Hell On Heels",
+  "Holy Moly",
+  "Holly & The Italians",
+  "House And Land",
+  "House Of Large Sizes",
+  "Howlin' Wolf",
+  "Husker Du",
+  "Hüsker Dü",
+
+  "I Love You",
+  "I, Sharko",
+  "Indigo Girls",
+
+  "JTG Explosion",
+  "Jefferson Airplane",
+  "Joy Division",
+
+  "Keb' Mo'",
+  "Kill Creek",
+  "King Crimson",
+  "King Loser",
+  "King Swamp",
+  "Kronos Quartet",
+
+  "La Mafia",
+  "Ladysmith Black Mambazo",
+  "Larkin Poe",
+  "Lead Belly",
+  "Los Llanaros",
+  "Los Llaneros",
+  "Los Lobos",
+  "Los Straitjackets",
+  "Los Super Seven",
+  "Lost & Found",
+
+  "Magic Car",
+  "Malcolm X",
+  "Manic Street Preachers",
+  "Mannheim Steamroller",
+  "Martha and the Muffins",
+  "Mary Lee",
+  "Material Issue",
+  "McKendree Spring",
+  "Me First & The Gimme Gimmes",
+  "Mexico 70",
+  "Milky Way",
+  "Mint Juleps",
+  "Miracle Legion",
+  "Mission Of Burma",
+  "Monty Python",
+  "Mostly Autumn",
+  "Mott The Hoople",
+  "Moxy Früvous",
+  "Muddy Waters",
+  "My Sister Linoleum",
+
+  "Natioanl Mampoon",
+  "Nerf Herder",
+  "New Mongrels",
+  "New Pornographers",
+  "New York Dolls",
+  "Nickel Creek",
+  "Nitty Gritty Dirt Band",
+  "Noah's Red Tattoo",
+  "Nova Mob",
+
+  "Off Broadway",
+  "Original Sinners",
+
+  "Parallax Project",
+  "Pearl Jam",
+  "Pere Ubu",
+  "Pernice Brothers",
+  "Pinkeye D'gekko",
+  "Pizzicato Five",
+  "Poi Dog Pondering",
+  "Purple Hearts",
+  "Psychotic Youth",
+  "Public Image Ltd.",
+
+  "Rain Parade",
+  "Ranch House Kids",
+  "Riff Raff",
+  "Rising Appalachia",
+
+  "Scruffy the Cat",
+  "Sensational Nightingales",
+  "Serious Drinking",
+  "Sex Pistols",
+  "Shakin' Apostles",
+  "Shonen Knife",
+  "Shudder To Think",
+  "Shy Nobleman",
+  "Silver Jet",
+  "Simple Minds",
+  "Single Gun Theory",
+  "Sir Douglas Quintet",
+  "Sister Double Happiness",
+  "Sky Parade",
+  "Smash Mouth",
+  "Smash Palace",
+  "Social Distortion",
+  "Son Volt",
+  "St. Louis Jesuits",
+  "Starry Eyed and Laughing",
+  "Steely Dan",
+  "Stone Foundation",
+  "Strength In Numbers",
+  "String Cheese Incident",
+  "Stumpy Joe",
+  "Suddenly, Tammy!",
+  "Suicidal Tendencies",
+  "Sun 60",
+  "Super Deluxe",
+  "Susan's Room",
+  "Swamp Dogg",
+  "Swinging Steaks",
+  "Syndicate Of Soul",
+
+  "that dog",
+  "Take 6",
+  "Talking Heads",
+  "Techno-Squid Eats Parliament",
+  "Teenage Fanclub",
+  "That Petrol Emotion",
+  "Thelonious Monster",
+  "These Days",
+  "They Might Be Giants",
+  "Thin White Rope",
+  "Things That Fall Down",
+  "Thinking Fellers Union Local 282",
+  "Thirteen Moons",
+  "Timbuk 3",
+  "Trash Can Sinatras",
+  "Trio Da Kali",
+  "Truckstop Honey",
+
+  "University Of Michigan Amazin' Blue",
+
+  "Velvet Crush",
+  "Velvet Underground",
+
+  "West Side Story Cast",
+  "Whiskey Daredevils",
+  "Wreckless Eric",
+
+  "Yo La Tengo", 
+  "Yonder Mountain String Band",
+  "Young Fresh Fellows",
+);
+
+
+# +-------------+----------------------------------------------------
+# | Subroutines |
+# +-------------+
+
+# Change the case to some standard case.
+sub fixCase($) {
+  my $str = shift;
+  $str =~ s/([a-zA-Z']+)/\u\L$1/g;
+  $str =~ s/Mc(\w+)/Mc\u\L$1/g;
+  return $str;
+}
+
+# Do the main work
+sub fixArtist($) {
+  my $name = shift;
+
+  # Commas suggest that we've already done the work
+  if ($name =~ m/,/) {
+    return $name;
+  }
+
+
+  foreach my $skip (@skip) {
+    if ($name eq $skip) {
+      return $name;
+    }
+  } # foreach
+
+  # Band names often part of Foo & ...
+  if (($name =~ m/^His/) || ($name =~ m/^Her/)) {
+    return $name;
+  }
+
+  # Band names that start with The
+  elsif ($name =~ m/^The /) {
+    $name =~ s/^The //;
+    return "$name, The";
+  }
+
+  # Names with ampersands
+  elsif ($name =~ m/ & /) {
+    my @parts = split(/ & /, $name, 2);
+    $parts[0] = fixArtist($parts[0]);
+    $parts[1] = fixArtist($parts[1]);
+    return "$parts[0] & $parts[1]";
+  }
+
+  # Quartets and Quintets and such
+  elsif ( ($name =~ m/ Quartet$/) 
+          || ($name =~ m/ Quintet$/)
+          || ($name =~ m/ Sextet$/) 
+          || ($name =~ m/ Trio$/)
+          || ($name =~ m/ Band$/) ) {
+    my $suffix = $name;
+    $suffix =~ s/.* //;
+    $name =~ s/ [^ ]*$//;
+    return fixArtist($name) . " (" . $suffix . ")";
+  }
+
+  # Singleton
+  elsif ($name !~ m/ /) {
+    return $name;
+  }
+
+  # Everything else we assume is a proper name
+  else {
+    my @parts = split(/ /, $name);
+    $last = pop @parts;
+    if (isFirstName($parts[0])) {
+      return $last . ", " . join(' ', @parts);
+    }
+    else {
+      print STDERR "*** All tests failed for '$name'.  Leaving as is.\n";
+      return $name;
+    } # if it's not a first name
+  } # default case
+} # fixArtist
+
+# Determine if something appears to be a first name
+sub isFirstName($) {
+  my $first = shift;
+  # print STDERR "Is $first a firstname? ";
+  foreach my $guess (@firstNames) {
+    if ($first eq $guess) {
+      # print STDERR "Yes!\n";
+      return 1;
+    }
+  } # foreach
+  # print STDERR "No!\n";
+  return 0;
+} # isFirstName
+
+# +------+-----------------------------------------------------------
+# | Main |
+# +------+
+
+foreach my $entry (@ARGV) {
+  $entry =~ s/\/$//;
+  # Don't change things that start with underscore.
+  if ($entry =~ m/^_/) {
+    print "Skipping $entry\n";
+  }
+  else {
+    my ($artist,$title) = split(/ - /, $entry, 2);
+    if (!$title) {
+      print "*** Skipping '$entry' - no title\n";
+    }
+    else {
+      $artist = fixCase($artist);
+      $title = fixCase($title);
+      my $artist = fixArtist($artist);
+      my $newentry = "$artist - $title";
+      print "$entry --> $newentry\n";
+      rename $entry, $newentry
+    }
+  }
+} # foreach $di
+
