@@ -12,7 +12,7 @@ chomp($courseid);
 my $num = $ARGV[0];
 
 # Determine the file name
-my $fname = "eboard.$num.md";
+my $fname = "eboard$num.md";
 if (-f $fname) {
   print STDERR "Eboard $fname already exists!\n";
   exit 1;
@@ -24,7 +24,7 @@ my $found = 0;
 my $line;
 open CLASSES, "../_data/classes.yml";
 while (($count < $num) && ($line = <CLASSES>)) {
-  if ($line =~ m/^- topic:/) {
+  if (($line =~ m/^- topic:/) && ($line !~ m/None/)) {
     ++$count;
   } #
 } # while
@@ -78,8 +78,34 @@ while (($line = <CLASSES>) ne "\n") {
 fappend($fname, "");
 
 # Add the daily preliminaries
-system("cat ../_prelim/prelim.$num.md | solid >> $fname");
+fappend($fname, "Preliminaries");
+fappend($fname, "-------------");
 fappend($fname, "");
+
+my $prev = $num - 1;
+if ($prev < 10) { $prev = "0$prev"; }
+my $prelim = "../_prelim/prelim$prev.md";
+if (-f $prelim) {
+  system("cat $prelim | solid >> $fname");
+}
+else {
+  print STDERR "Can't find previous prelim ($prev).  Generating blank.\n";
+  my $stuff = <<"PRELIM";
+### News / Etc.
+
+### Upcoming work
+
+### Extra credit (Academic/Artistic)
+
+### Extra credit (Peer)
+
+### Extra credit (Misc)
+
+### Other good things
+
+PRELIM
+   fappend($fname, $stuff);
+}
 
 # Add the questions
 fappend($fname, "### Questions");

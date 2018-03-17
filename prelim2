@@ -1,0 +1,41 @@
+#!/usr/bin/perl
+
+# extract-prelim NUM
+#   Extract the preliminaries from an eboard (or so I hope)
+
+$num = $ARGV[0];
+$eboard = "_eboards/eboard$num.md";
+$prelim = "_prelim/prelim$num.md";
+
+open EBOARD, "<", $eboard
+  or die "Can't open $eboard";
+
+open PRELIM, ">", $prelim
+  or die "Can't open $prelim";
+
+print PRELIM <<"HEAD";
+---
+title: Preliminaries for class $num
+section: prelim
+link: true
+---
+HEAD
+
+# Skip over introductory material
+while (($line = <EBOARD>) && ($line ne "Preliminaries\n")) {
+} # while
+
+$line = <EBOARD>;       # Skip underline
+$line = <EBOARD>;       # Skip blank line
+
+# Read everything up to the questions
+while ($line = <EBOARD>) {
+  if ($line =~ m/^### Question/) {
+    last;
+  }
+  print PRELIM $line;
+}
+
+# Clean up
+close EBOARD;
+close PRELIM;
