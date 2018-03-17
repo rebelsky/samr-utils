@@ -34,6 +34,7 @@ my @firstNames = (
   "Art",
   "Arthur",
   "Artie",
+  "Ashley",
   "Augie",
 
   "Barbara",
@@ -67,6 +68,8 @@ my @firstNames = (
   "Brandy",
   "Brett",
   "Brian",
+  "Bridget",
+  "Brigitte",
   "Brownie",
   "Bruce",
   "Bryan",
@@ -97,6 +100,7 @@ my @firstNames = (
   "Cindy",
   "Claire",
   "Clara",
+  "Clive",
   "Colman",
   "Courtney",
   "Curt",
@@ -129,11 +133,13 @@ my @firstNames = (
   "Eddie",
   "Edie",
   "Edward",
-  "Ella",
-  "Ellen",
   "Eliza",
   "Elizabeth",
   "Elkie",
+  "Ella",
+  "Elle",
+  "Ellen",
+  "Ellie",
   "Elvis",
   "Emily",
   "Emitt",
@@ -164,6 +170,7 @@ my @firstNames = (
   "Grant",
   "Greg",
   "Gregg",
+  "Guthrie",
 
   "Hal",
   "Haley",
@@ -202,12 +209,15 @@ my @firstNames = (
   "Jess",
   "Jesse",
   "Jessica",
+  "Jill",
+  "Jillian",
   "Jim",
   "Jimi",
   "Jimmie",
   "Jimmy",
   "Jo",
   "Joan",
+  "Joanne",
   "Jodi",
   "Jodie",
   "Joe",
@@ -347,6 +357,7 @@ my @firstNames = (
   "Rainer",
   "Randy",
   "Ray",
+  "Reba",
   "Rebecca",
   "Rebecka",
   "Red",
@@ -387,6 +398,8 @@ my @firstNames = (
   "Shel",
   "Shelby",
   "Sheldon",
+  "Shirley",
+  "Skeeter",
   "Sonny",
   "Stephen",
   "Steve",
@@ -398,6 +411,7 @@ my @firstNames = (
   "Sylvia",
   "Sylvie",
 
+  "Tanya",
   "Teri",
   "Teresa",
   "Terry",
@@ -405,9 +419,11 @@ my @firstNames = (
   "Theresa",
   "Thom",
   "Thomas",
+  "Tift",
   "Tim",
   "Tom",
   "Tommy",
+  "Tony",
   "Trisha",
 
   "Van",
@@ -824,7 +840,12 @@ sub isFirstName($) {
 # +------+
 
 foreach my $entry (@ARGV) {
+  # Drop ending slash, often added when I hit tab
   $entry =~ s/\/$//;
+
+  # Convert other kinds of dashes
+  $entry =~ s/–/-/;
+
   # Don't change things that start with underscore.
   if ($entry =~ m/^_/) {
     print "Skipping $entry\n";
