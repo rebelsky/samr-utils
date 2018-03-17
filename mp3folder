@@ -1,0 +1,21 @@
+#!/usr/bin/perl 
+
+# mp3folder FOLDER/FILE.mp3
+#   Rename a folder based on the info in an mp3 file.
+
+use MP3::Tag;
+
+my $file = $ARGV[0];
+my $mp3 = MP3::Tag->new($file);
+$mp3->get_tags;
+# The next line is overkill, but I'm lazy
+($title, $track, $artist, $album, $comment, $year, $genre) = $mp3->autoinfo();
+
+my $dir = $file;
+$dir =~ s/\/.*//;
+
+my $newdir = "$artist - $album";
+$newdir =~ s/:/ -/;
+
+print STDERR "Renaming '$dir' to '$newdir'.\n";
+rename $dir, $newdir;
