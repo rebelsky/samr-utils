@@ -88,7 +88,7 @@ s/<\/code>/`/g;
 s/<programlisting>/<pre>/g;
 s/<\/programlisting>/<\/pre>/g;
 s/<screen>/<pre>/g;
-s/<\/screen>/<\/re>/g;
+s/<\/screen>/<\/pre>/g;
 
 # Other kinds of code
 s/<methodname>/`/g;
