@@ -16,6 +16,7 @@ $dir =~ s/\/.*//;
 
 my $newdir = "$artist - $album";
 $newdir =~ s/:/ -/;
+$newdir =~ s/\// - /;
 
 print STDERR "Renaming '$dir' to '$newdir'.\n";
 rename $dir, $newdir;
