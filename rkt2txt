@@ -83,6 +83,10 @@ while (<$FILE>) {
     print "\n";
   }
 
+  elsif (m/^4/) {
+    print "; <IMAGE>\n";
+  }
+
   $long_comment = 0;
   if (m/0 0 17 3 [0-9]*$/) {
     $long_comment = 1;
