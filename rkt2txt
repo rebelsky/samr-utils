@@ -45,28 +45,29 @@
 # +------+
 
 open my $FILE, "< $ARGV[0]";
-my $multi_line_comment = 0;	# Are we in a multi-line comment
-my $potential_multi_line_comment = 0;
+my $multi_part_comment = 0;	# Are we in a multi-line comment
+my $long_comment = 0;
 while (<$FILE>) {
   chomp;
-  if ($potential_multi_line_comment && m/^\(/) {
-    $multi_line_comment = 1;
-  }
-  $potential_multi_line_comment = 0;
-  if (m/0 0 17 3 [0-9]*$/) {
-    $potential_multi_line_comment = 1;
+
+  # Identify start and end of multi-part comments.  (It appears that
+  # comments with more than 67 characters are split into multiple parts.)
+  if ($long_comment && m/^\(/) {
+    $multi_part_comment = 1;
   }
   if (m/^\)/) {
-    $multi_line_comment = 0;
+    $multi_part_comment = 0;
   }
 
+  # The various instances in which we get to deal with text to print
   if ((m/0 0 14 /) 
       || (m/0 0 15 /) 
-      || (m/0 0 17 3/) 
+      || (m/0 0 17 3 .*#"/) 
       || (m/0 0 19 3/) 
       || (m/0 0 24 3/)
       || (m/0 28 3/)
-      || (($multi_line_comment) && (m/^ #/))) {
+      || (($multi_part_comment) && (m/^ #/))
+      || ($long_comment && m/^#"/)) {
       if (m/#"/) {
         # Drop leading text
         s/^.*?#"//;
@@ -80,5 +81,10 @@ while (<$FILE>) {
 
   elsif (m/"\\n"/) {
     print "\n";
+  }
+
+  $long_comment = 0;
+  if (m/0 0 17 3 [0-9]*$/) {
+    $long_comment = 1;
   }
 } # while
