@@ -33,16 +33,28 @@
 # * This does not work on strings, and includes some things that it
 #   should not.  Check the output on 457772.rkt.
 
+# +-------------+----------------------------------------------------
+# | Future Work |
+# +-------------+
+
+# * Consider putting the raw data in a separate file so that it's easier
+#   to use some other way (or perhaps to rebuild).
+
 # +------+-----------------------------------------------------------
 # | Main |
 # +------+
 
 open my $FILE, "< $ARGV[0]";
-my $multi_line_comment = 0;
+my $multi_line_comment = 0;	# Are we in a multi-line comment
+my $potential_multi_line_comment = 0;
 while (<$FILE>) {
   chomp;
-  if (m/0 0 17 3 [0-9]*$/) {
+  if ($potential_multi_line_comment && m/^\(/) {
     $multi_line_comment = 1;
+  }
+  $potential_multi_line_comment = 0;
+  if (m/0 0 17 3 [0-9]*$/) {
+    $potential_multi_line_comment = 1;
   }
   if (m/^\)/) {
     $multi_line_comment = 0;
