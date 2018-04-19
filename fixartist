@@ -31,6 +31,7 @@ my @firstNames = (
   "Andy",
   "Angel",
   "Angela",
+  "Anita",
   "Ann",
   "Anne",
   "Art",
@@ -59,6 +60,7 @@ my @firstNames = (
   "Bill",
   "Billie",
   "Billy",
+  "Blaine",
   "Bo",
   "Bob",
   "Bobbie",
@@ -81,7 +83,9 @@ my @firstNames = (
 
   "Cal",
   "Cara",
+  "Carl",
   "Carla",
+  "Carlos",
   "Carol",
   "Caroline",
   "Carrie",
@@ -120,6 +124,7 @@ my @firstNames = (
   "Deb",
   "Deborah",
   "Debra",
+  "Del",
   "Dennis",
   "Doc",
   "Dolly",
@@ -183,6 +188,7 @@ my @firstNames = (
   "Hanneke",
   "Hani",
   "Harold",
+  "Hedy",
   "Hobart",
   "Holly",
   "Hoyt",
@@ -197,6 +203,7 @@ my @firstNames = (
   "Jackson",
   "Jacob",
   "Jake",
+  "James",
   "Jan",
   "Jane",
   "Janey",
@@ -208,6 +215,7 @@ my @firstNames = (
   "Jean",
   "Jeff",
   "Jennifer",
+  "Jeremy",
   "Jerod",
   "Jerrod",
   "Jerry",
@@ -235,7 +243,10 @@ my @firstNames = (
   "Jonathan",
   "Joni",
   "Joseph",
+  "Josh",
+  "Joshua",
   "Joy",
+  "Judee",
   "Judy",
   "Jules",
   "Julian",
@@ -252,6 +263,7 @@ my @firstNames = (
   "Kaya",
   "Kelley",
   "Kelly",
+  "Kieran",
   "Kim",
   "Kimberly",
   "Kimmie",
@@ -262,8 +274,10 @@ my @firstNames = (
   "Kristin",
   "Kristy",
   "Kurt",
+  "Kyle",
 
   "Lafayette",
+  "Lara",
   "Laura",
   "Lauren",
   "Laurie",
@@ -305,6 +319,7 @@ my @firstNames = (
   "Margot",
   "Marc",
   "Marianne",
+  "Marissa",
   "Mark",
   "Marti",
   "Marshall",
@@ -331,6 +346,7 @@ my @firstNames = (
   "Michael",
   "Mickey",
   "Mike",
+  "Miles",
   "Mitch",
   "Mitchell",
   "Mojo",
@@ -355,6 +371,7 @@ my @firstNames = (
   "Owen",
 
   "Pat",
+  "Patterson",
   "Patti",
   "Paul",
   "Peg",
@@ -370,6 +387,7 @@ my @firstNames = (
   "Rachael",
   "Rachel",
   "Radney",
+  "Rayna",
   "Rainer",
   "Randy",
   "Ray",
@@ -388,6 +406,7 @@ my @firstNames = (
   "Robert",
   "Robin",
   "Robyn",
+  "Rodney",
   "Roger",
   "Ron",
   "Ronnie",
@@ -416,6 +435,7 @@ my @firstNames = (
   "Shelby",
   "Sheldon",
   "Shirley",
+  "Simon",
   "Skeeter",
   "Skid",
   "Sonny",
@@ -435,12 +455,16 @@ my @firstNames = (
   "Teri",
   "Teresa",
   "Terry",
+  "Tex",
+  "Thalia",
   "Thelonious",
+  "Theodore",
   "Theresa",
   "Thom",
   "Thomas",
   "Tift",
   "Tim",
+  "Todd",
   "Tom",
   "Tommy",
   "Tony",
@@ -463,6 +487,8 @@ my @firstNames = (
   "Wilson",
 
   "Xenia",
+
+  "Yelena",
 );
 
 # Things we ignore.  (Most of these are remnants from an early version.)
@@ -685,6 +711,7 @@ my @firstNames = (
   "Pearl Jam",
   "Pere Ubu",
   "Pernice Brothers",
+  "Pigsty Hill Light Orchestra",
   "Pinkeye D'gekko",
   "Pizzicato Five",
   "Poi Dog Pondering",
@@ -786,7 +813,7 @@ sub fixArtist($) {
     return $name;
   }
 
-
+  # There are some names we skip
   foreach my $skip (@skip) {
     if ($name eq $skip) {
       return $name;
@@ -805,7 +832,8 @@ sub fixArtist($) {
   }
 
   # Names with ampersands
-  elsif ($name =~ m/ & /) {
+  elsif (($name =~ m/ & /) || ($name =~ m/ and /i)) {
+    $name =~ s/ and / \& /i;
     my @parts = split(/ & /, $name, 2);
     $parts[0] = fixArtist($parts[0]);
     $parts[1] = fixArtist($parts[1]);
