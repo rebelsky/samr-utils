@@ -1,0 +1,94 @@
+#!/usr/bin/perl
+
+# Convert a racket file (taken from the command line) to plain text
+# (printed to stdout).
+
+# +-------+----------------------------------------------------------
+# | Notes |
+# +-------+
+
+# * It looks like lines that begin with 0 mark plain text to print and
+#   other lines mark other kinds of data.  Nope.  That's not it.  There
+#   are early lines that don't follow that patern.
+
+# * There are some points in which there are list of strings on a 
+#   separate line.
+#   (
+#    #"; +--+--------------------------------------------------------------"
+#    #"-"
+#   )
+
+# * It's hard to tell whether the numbers precede or follow the things
+#   I keep thinking one, then I decide that it's another.
+
+# * Patterns
+#     * 0 0 14 .... #"..." seems to be the pattern for code
+#     * 0 0 15 3 ... #"..." seems to be the pattern for keywords
+#     * 0 0 17 3 nn #"..." seems to be the pattern for comments
+#     * 0 0 19 3 nn #"..." seems to be the pattern for strings within #| |#
+#     * 0 0 24 3 ... #" seems to be the pattern for spaces and parens
+#     * 0 0 24 29 1 #"\n" seems to be the pattern for newlines.
+#     * 0 28 3 #" seems to be the "#lang racket"
+
+# * This does not work on strings, and includes some things that it
+#   should not.  Check the output on 457772.rkt.
+
+# +-------------+----------------------------------------------------
+# | Future Work |
+# +-------------+
+
+# * Consider putting the raw data in a separate file so that it's easier
+#   to use some other way (or perhaps to rebuild).
+
+# +------+-----------------------------------------------------------
+# | Main |
+# +------+
+
+open my $FILE, "< $ARGV[0]";
+my $multi_part_comment = 0;	# Are we in a multi-line comment
+my $long_comment = 0;
+while (<$FILE>) {
+  chomp;
+
+  # Identify start and end of multi-part comments.  (It appears that
+  # comments with more than 67 characters are split into multiple parts.)
+  if ($long_comment && m/^\(/) {
+    $multi_part_comment = 1;
+  }
+  if (m/^\)/) {
+    $multi_part_comment = 0;
+  }
+
+  # The various instances in which we get to deal with text to print
+  if ((m/0 0 14 /) 
+      || (m/0 0 15 /) 
+      || (m/0 0 17 3 .*#"/) 
+      || (m/0 0 19 3/) 
+      || (m/0 0 24 3/)
+      || (m/0 28 3/)
+      || (($multi_part_comment) && (m/^ #/))
+      || ($long_comment && m/^#"/)) {
+      if (m/#"/) {
+        # Drop leading text
+        s/^.*?#"//;
+	# Drop ending text
+        s/"$//;
+        # Handle backslashed quotes (generalize?))))
+	s/\\"/"/g;
+        print "$_";
+      } # if there's a string.
+  } # if any of the main patterns
+
+  elsif (m/"\\n"/) {
+    print "\n";
+  }
+
+  elsif (m/^4/) {
+    print "; <IMAGE>\n";
+  }
+
+  $long_comment = 0;
+  if (m/0 0 17 3 [0-9]*$/) {
+    $long_comment = 1;
+  }
+} # while

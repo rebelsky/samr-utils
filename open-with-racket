@@ -1,0 +1,11 @@
+#!/bin/bash
+#   Open all the Racket files from the command line on a Mac.
+
+dir=`pwd`;
+
+for file in "$@"
+do
+  echo "Opening $dir/$file";
+  osascript -e "tell application \"DrRacket\"" -e  "open \"$dir/$file\"" -e "end tell"
+done
+
