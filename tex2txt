@@ -1,0 +1,61 @@
+#!/usr/bin/perl
+# A quick hack to turn some .tex files into something closer to .txt
+# files so that I can do checking in Grammarly or equivalent.
+
+# +-----------+------------------------------------------------------
+# | Libraries |
+# +-----------+
+
+use File::Slurp qw(read_file);
+
+# +---------+--------------------------------------------------------
+# | Globals |
+# +---------+
+
+# The data we're reading
+my $data = "";
+
+# +------+-----------------------------------------------------------
+# | Main |
+# +------+
+
+# Get the data (either from a file or stdin)
+if ($#ARGV == 0) {
+  $data = slurp($ARGV[0]);
+}
+else {
+  # Read all the data from stdin.  Note: Undefining $/ didn't seem to work.
+  while (<STDIN>) {
+    $data = "$data$_";
+  }
+}
+
+# Get rid of some TeX stuff
+$data =~ s/\\begin\{[a-zA-Z0-9_]*\}//g;
+$data =~ s/\\end\{[a-zA-Z0-9_]*\}//g;
+$data =~ s/\\[a-zA-Z0-9_]*//g;
+# $data =~ s/[{}]//g;
+
+# Join lines (which is the real reason I'm doing this)
+$data =~ s/ *\n *([^\n])/ \1/gm;
+$data =~ s/\n/\n\n/gm;
+$data =~ s/\n /\n/gm;
+$data =~ s/^[ \n]*//m;
+
+# And we're done
+print $data;
+
+# +-------------+----------------------------------------------------
+# | Subroutines |
+# +-------------+
+
+# Slurp the contents of a file.  Modified from (https://perlmaven.com/slurp)
+sub slurp($) 
+{
+  my $fname = shift;
+  open my $fh, '<', $fname or die "Could not find file $fname";
+  local $/ = undef;
+  $data = <$fh>;
+  close $fh;
+  return $data;
+}
