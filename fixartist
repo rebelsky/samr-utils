@@ -146,6 +146,7 @@ my @firstNames = (
   "Eddie",
   "Edie",
   "Edward",
+  "Eli",
   "Eliza",
   "Elizabeth",
   "Elkie",
@@ -196,6 +197,7 @@ my @firstNames = (
   "Hedy",
   "Hobart",
   "Holly",
+  "Howard",
   "Hoyt",
 
   "Ian",
@@ -365,6 +367,7 @@ my @firstNames = (
   "Nicholas",
   "Nick",
   "Nicole",
+  "Nigel",
   "Nils",
   "Nora",
   "Norah",
@@ -373,6 +376,7 @@ my @firstNames = (
   "Norman",
 
   "Olivia",
+  "Ornette",
   "Otis",
   "Owen",
 
@@ -453,6 +457,7 @@ my @firstNames = (
   "Steven",
   "Sue",
   "Susan",
+  "Susanna",
   "Syl",
   "Sylvan",
   "Sylvia",
