@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 # A quick hack to turn some .tex files into something closer to .txt
-# files so that I can do checking in Grammarly or equivalent.
+# files (with paragraphs on a single line) so that I can do checking in 
+# Grammarly or equivalent.
 
 # +-----------+------------------------------------------------------
 # | Libraries |
@@ -31,10 +32,17 @@ else {
 }
 
 # Get rid of some TeX stuff
-$data =~ s/\\begin\{[a-zA-Z0-9_]*\}//g;
-$data =~ s/\\end\{[a-zA-Z0-9_]*\}//g;
-$data =~ s/\\[a-zA-Z0-9_]*//g;
-# $data =~ s/[{}]//g;
+$data =~ s/^%.*//g;			# Start-of-line comments
+$data =~ s/([^\\])%.*$/\1/g;		# Other comments
+$data =~ s/\\begin\{[a-zA-Z0-9_]*\}//g;	# Start of blocks
+$data =~ s/\\end\{[a-zA-Z0-9_]*\}//g;	# End of blocks
+$data =~ s/\\cite\{[^\}]*\}/[0]/g;	# Citations
+$data =~ s/\\footnote/ /g;		# Footnotes, which may need spaces
+$data =~ s/\\[a-zA-Z0-9_]*//g;		# Other tags
+$data =~ s/[{}]//g;			# Braces
+$data =~ s/([^\\])~/\1 /g;		# Tildes
+$data =~ s/``/"/g;			# Quotation marks
+$data =~ s/''/"/g;			# More quotation marks
 
 # Join lines (which is the real reason I'm doing this)
 $data =~ s/ *\n *([^\n])/ \1/gm;
