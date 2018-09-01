@@ -20,4 +20,9 @@ $newdir =~ s/\// - /;
 
 print STDERR "Renaming '$dir' to '$newdir'.\n";
 rename $dir, $newdir;
-system("fixartist '$newdir'");
+if ($newdir =~ m/'/) {
+  print STDERR "Single quote in name.  Skipping.\n";
+}
+else {
+  system("fixartist '$newdir'");
+}
