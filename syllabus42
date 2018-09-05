@@ -1,0 +1,41 @@
+#!/usr/bin/perl
+
+# syllabus42
+#   A quick hack to build a short "syllabus table" from a list of
+#   topics.  Inended mostly as an easy way to (re)design syllabi.
+
+my $week = 0;
+my $day = 0;
+
+# Print the opening text
+print "<table border>\n";
+print "  <tr><th>Week</th> <th>Monday</th> <th>Wednesday</th> <th>Friday</th></tr>\n";
+
+# Grab topics from the file
+while ((my $topic = <STDIN>) && ($day < 42)) {
+  ++$day;
+  chomp($topic);
+  addTopic($topic);
+} # while
+
+# Add any remaining days
+while ($day < 42) {
+  ++$day;
+  addTopic("<em>TBD</em>");
+}
+
+# Add the final bit.
+print "<\/tr>\n";
+print "</table>\n";
+
+# Check for remaining topics
+
+sub addTopic($) {
+  my $topic = shift;
+  if (1 == ($day % 3)) {
+    ++$week;
+    print "<\/tr>\n";
+    print "  <tr><th align='right'>$week</th>";
+  }
+  print " <td>$topic</td>"
+}
