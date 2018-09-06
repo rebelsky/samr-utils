@@ -10,6 +10,7 @@ chomp($courseid);
 
 # Grab the course number
 my $num = $ARGV[0];
+my $int = $num + 0;
 
 # Determine the file name
 my $fname = "eboard$num.md";
@@ -43,9 +44,10 @@ my $held = `date "+%Y-%m-%d"`;
 chomp($held);
 fappend($fname,"---");
 fappend($fname,"title: Eboard $num $title");
-fappend($fname,"number: $num");
+fappend($fname,"number: $int");
 fappend($fname,"section: eboards");
 fappend($fname,"held: $held");
+fappend($fname,"link: true");
 fappend($fname,"---");
 
 # Page title
