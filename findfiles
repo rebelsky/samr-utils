@@ -1,0 +1,34 @@
+#!/usr/bin/perl
+
+# findfiles pattern
+#   Look in the current directory and below for files that match a pattern
+
+if ($#ARGV != 0) {
+  print STDERR "Usage: findfiles pattern\n";
+  exit 0;
+}
+
+my $pattern = $ARGV[0];
+
+processdir(".");
+
+sub processdir($) {
+  my $dir = shift;
+  # print STDERR "Processing $dir\n";
+  opendir(my $dh, $dir);
+  LOOP: while (readdir $dh) {
+    my $entry = $_;
+    if ($entry =~ m/^\./) {
+      next LOOP;
+    }
+    if (-d "$dir/$entry") {
+      processdir("$dir/$entry");
+    }
+    elsif ($entry =~ m/$pattern/) {
+      my $result = "$dir/$entry";
+      $result =~ s/^\.\///;
+      print "$result\n";
+    }
+  }
+  closedir $dh;
+}
