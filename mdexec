@@ -1,0 +1,58 @@
+#!/usr/bin/perl
+
+# mdexec FILE
+#   Handle commands in a Markdown file
+#
+#   Note: commands are given by !!command, with the !! at the start of
+#   the line
+
+my $contents;
+if ($#ARGV >= 0) { $contents = readFile($ARGV[0]); }
+else { $contents = readPort(STDIN); }
+
+$contents =~ s/^!!(.*)$/process($1)/me;
+
+print $contents;
+exit 0;
+
+# +-------------+-----------------------------------------------------
+# | Subroutines |
+# +-------------+
+
+# Read in the output of a command
+sub readCommand($)
+{
+  my $command = shift;
+  open my $port, "$command 2>&1 |";
+  my $contents = readPort($port);
+  close($port);
+  return "$contents";
+} # readCommand
+
+# Read in the contents of a file.
+sub readFile($)
+{
+  my $filename = shift;
+  open(my $PORT, "< $filename");
+  my $contents = readPort($PORT);
+  close($PORT);
+  return $contents;
+} # readFile
+
+# Read in the contents of a port.
+sub readPort($)
+{
+  my $PORT = shift;
+  my $linesep = $/;     # Save for later
+  undef $/;             # When %/ is undefined, read reads the whole file
+  my $contents = <$PORT>;
+  $/ = $linesep;        # Restore
+  return $contents;
+} # readPort
+
+# Process a command
+sub process($)
+{
+  my $command = shift;
+  return "<!-- exec $command -->\n" . readCommand($command) . "<!-- /exec -->";
+} # process
