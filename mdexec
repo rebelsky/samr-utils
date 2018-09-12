@@ -1,10 +1,11 @@
 #!/usr/bin/perl
 
-# mdexec FILE
-#   Handle commands in a Markdown file
+# mdexec [FILE]
+#   Process commands in a Markdown file.  If no file is given on the
+#   command line, processes them from stdin.
 #
 #   Note: commands are given by !!command, with the !! at the start of
-#   the line
+#   the line.  
 
 my $contents;
 if ($#ARGV >= 0) { $contents = readFile($ARGV[0]); }
