@@ -11,7 +11,7 @@ my $contents;
 if ($#ARGV >= 0) { $contents = readFile($ARGV[0]); }
 else { $contents = readPort(STDIN); }
 
-$contents =~ s/^!!(.*)$/process($1)/me;
+$contents =~ s/^!!(.*)$/process($1)/meg;
 
 print $contents;
 exit 0;
