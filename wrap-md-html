@@ -18,8 +18,9 @@ my $title,$body;
 my ($title,$body) = split /\n/, $original, 2;
 
 if ($title =~ m/<h1/i) {
-  $title =~ s/<\/h1>.*//i;
-  $title =~ s/<h1[^>]*>//i;
+  $title =~ s/<q>/"/gi;
+  $title =~ s/<\/q>/"/gi;
+  $title =~ s/<[^>]*>//gi;
 }
 else {
   $title = "";
