@@ -16,11 +16,14 @@ my $original = readFile($ARGV[0]);
 my $template = readFile($ARGV[1]);
 my $title,$body;
 my ($title,$body) = split /\n/, $original, 2;
+my $h1 = $title;
 
 if ($title =~ m/<h1/i) {
   $title =~ s/<q>/"/gi;
   $title =~ s/<\/q>/"/gi;
   $title =~ s/<[^>]*>//gi;
+  $h1 =~ s/^<h1[^>]*>//;
+  $h1 =~ s/<\/h1>//;
 }
 else {
   $title = "";
@@ -30,6 +33,7 @@ else {
 $template =~ s/\*BODY\*/$body/g;
 $template =~ s/\*TITLE\*/$title/g;
 $template =~ s/\*FILE\*/$file/g;
+$template =~ s/\*H1\*/$h1/g;
 
 print $template;
 
