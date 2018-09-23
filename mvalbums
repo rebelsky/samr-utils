@@ -1,0 +1,67 @@
+#!/bin/bash
+
+# mvalbums
+#   Attempt to quickly move all the albums that start with a particular
+#   letter into the directory that starts with that letter.
+
+# +---------+--------------------------------------------------------
+# | Helpers |
+# +---------+
+
+# mv2dir pattern dir
+#   Move all the files that match pattern to the directory
+function mv2dir () {
+  # Make the directory if it does not exist
+  if [ ! -d $2 ]; then
+    mkdir $2;
+  fi
+
+  # Count the number of files to move
+  count=`ls -d $1 2>/dev/null | wc -l`;
+  count=$(expr $count + 0);
+
+  # If appropriate, move the files.  Also print a message.
+  if (( $count > 0 )); then
+    echo "$2: Moving $count files" 1>&2;
+    mv -n $1 $2;
+  else
+    echo "$2: No available files" 1>&2;
+  fi
+
+  # See how many are left
+  count=`ls -d $1 2>/dev/null | wc -l`;
+  count=$(expr $count + 0);
+  if (( $count > 0 )); then
+    if (( $count > 1 )); then
+      echo "	$count duplicate(s) left untouched" 1>&2;
+    else
+      echo "	1 duplicate left untouched" 1>&2;
+    fi
+    for file in $1
+    do
+      echo "		$file" 1>&2;
+    done
+  fi
+}
+
+# +------+-----------------------------------------------------------
+# | Main |
+# +------+
+
+# Various artists
+mv2dir "VA?*" "(Compilations)"
+mv2dir "Various?*" "(Compilations)"
+
+# Things that start with numbers
+mv2dir "[0-9]?*" "#"
+
+# All the letters
+for uc in {A..Z}
+do
+  lc=`echo "$uc" | tr '[:upper:]' '[:lower:]'`
+  mv2dir "[$lc$uc]?*" "$uc";
+done
+
+
+
+
