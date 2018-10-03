@@ -5,24 +5,25 @@
 
 use MP3::Tag;
 
-my $file = $ARGV[0];
-my $mp3 = MP3::Tag->new($file);
-$mp3->get_tags;
-# The next line is overkill, but I'm lazy
-($title, $track, $artist, $album, $comment, $year, $genre) = $mp3->autoinfo();
+foreach my $file (@ARGV) {
+  my $mp3 = MP3::Tag->new($file);
+  $mp3->get_tags;
+  # The next line is overkill, but I'm lazy
+  ($title, $track, $artist, $album, $comment, $year, $genre) = $mp3->autoinfo();
+  
+  my $dir = $file;
+  $dir =~ s/\/.*//;
+  
+  my $newdir = "$artist - $album";
+  $newdir =~ s/:/ -/;
+  $newdir =~ s/\// - /;
 
-my $dir = $file;
-$dir =~ s/\/.*//;
-
-my $newdir = "$artist - $album";
-$newdir =~ s/:/ -/;
-$newdir =~ s/\// - /;
-
-print STDERR "Renaming '$dir' to '$newdir'.\n";
-rename $dir, $newdir;
-if ($newdir =~ m/'/) {
-  print STDERR "Single quote in name.  Skipping.\n";
-}
-else {
-  system("fixartist '$newdir'");
-}
+  print STDERR "Renaming '$dir' to '$newdir'.\n";
+  rename $dir, $newdir;
+  if ($newdir =~ m/'/) {
+    print STDERR "Single quote in name.  Skipping.\n";
+  }
+  else {
+    system("fixartist '$newdir'");
+  }
+} # foreach
