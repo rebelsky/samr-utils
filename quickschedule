@@ -1,0 +1,88 @@
+#!/usr/bin/perl
+
+# quickschedule format
+#   A quick hack to build a short "schedule table" from a list of
+#   topics.  Inended mostly as an easy way to (re)design my course
+#   schedules.
+# 
+#   Format must be "MWF" or "MTWF" or "MTWRF" or "TR" (Tuesday/Thursday)
+
+# Globals
+my $week = 0;   # Which week are we in?
+my $day = 0;    # Which day of the class is it?
+
+# Preliminary setup
+if ($#ARGV != 0) { giveUp(); }
+my $format = $ARGV[0];
+my $header;     # The table header
+my $days;       # The total number of days
+my $daysPerWeek = length($format);
+
+if ($format eq "MWF") {
+  $header = '  <tr><th width="10%">Week</th> <th width="30%">Monday</th> <th width="30%">Wednesday</th> <th width="30%">Friday</th></tr>\n';
+  $days = 42;
+}
+elsif ($format eq "MTWF") {
+  $header = '  <tr><th width="10%">Week</th> <th width="22.5%">Monday</th> <th width="22.5%">Tuesday</th> <th width="22.5%">Wednesday</th> <th width="22.5%">Friday</th></tr>\n';
+  $days = 56;
+}
+elsif ($format eq "MTWRF") {
+  $header = '  <tr><th width="10%">Week</th> <th width="18%">Monday</th> <th width="18%">Tuesday</th> <th width="18%">Wednesday</th> <th width="18%">Thursday</th> <th width="18%">Friday</th></tr>\n';
+  $days = 60;
+}
+elsif ($format eq "TR") {
+  $header = '  <tr><th width="10%">Week</th> <th width="45%">Tuesday</th> <th width="45%">Thursday</th></tr>\n';
+  $days = 28;
+}
+else {
+  giveUp();
+}
+
+# Print the opening text
+print '<table border class="schedule">\n';
+print $header;
+
+# Grab topics from the file
+while ((my $topic = <STDIN>) && ($day < $days)) {
+  ++$day;
+  chomp($topic);
+  if ($topic) { addTopic($topic); }
+} # while
+
+# Add any remaining days
+while ($day < $days) {
+  ++$day;
+  addTopic("<em>TBD</em>");
+}
+
+# Add the final bit.
+print "<\/tr>\n";
+print "</table>\n";
+
+# Check for remaining topics
+while ($topic = <STDIN>) {
+  chomp($topic);
+  if ($topic) { print STDERR "Extra topic: '$topic'\n"; }
+} # while
+
+# +-------------+----------------------------------------------------
+# | Subroutines |
+# +-------------+
+
+# Add a topic to the table.
+sub addTopic($) {
+  my $topic = shift;
+  if (1 == ($day % $daysPerWeek)) {
+    ++$week;
+    print "<\/tr>\n";
+    print "  <tr><th style='text-align:right;'>$week</th>";
+  }
+  print " <td>$topic</td>"
+} # addTopic
+
+# Give up (printing usage information)
+sub giveUp {
+  print STDERR "Usage: quickschedule format\n";
+  print STDERR "  Where format is MWF, MTWF, MTWRF, or TR.\n";
+  exit 1;
+} # giveUP
