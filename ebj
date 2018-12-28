@@ -7,6 +7,10 @@
 # Figure out the course id
 my $courseid = `grep '^courseid:' ../_config.yml | sed -e 's/^.*: //'`;
 chomp($courseid);
+if (!$courseid) {
+  $courseid = `grep '^title:' ../_config.yml | sed -e 's/^.*: //'`;
+  chomp($courseid);
+}
 
 # Grab the course number
 my $num = $ARGV[0];
@@ -100,6 +104,8 @@ else {
 ### Extra credit (Academic/Artistic)
 
 ### Extra credit (Peer)
+
+### Extra credit (Wellness)
 
 ### Extra credit (Misc)
 
