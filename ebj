@@ -76,6 +76,10 @@ while (($line = <CLASSES>) ne "\n") {
     my $entry = $line;
     chomp($entry);
     $entry =~ s/^ *- //;
+    if ($entry =~ m/^"/) {
+      $entry =~ s/^"//;
+      $entry =~ s/"$//;
+    }
     push @subjects, $entry;
     fappend($fname, "* $entry");
   }  # if
