@@ -1,0 +1,170 @@
+#!/usr/bin/perl
+
+# rackex
+#   Run some Racket examples (I think)
+#
+# To Do
+#   * Stop using so many global variables.
+
+use Getopt::Long;
+
+# +------+-----------------------------------------------------------
+# | Main |
+# +------+
+
+my $evaluator = "";     # Which evaluator to use (image, racket, base)
+my $infile = "";        # Input file (optional)
+my $outfile = "";       # Output file (optional)
+my $pngdir = ".";       # Directory for .png files (optional, defaults to here)
+
+GetOptions ("eval=s" => \$evaluator,
+            "infile=s" => \$infile,
+            "outfile=s" => \$outfile,
+            "pngdir=s" => \$pngdir)
+  or die("Error in command-line arguments");
+
+if ($infile && ($#ARGV >= 0)) {
+  die("Infile specified in multiple ways");
+}
+if (!$infile && ($#ARGV == 0)) {
+  $infile = $ARGV[0];
+}
+
+my $scrblfile = "rackex$$.scrbl";
+print STDERR "$scrblfile\n";
+my $lib = "";
+my $eval = "(make-base-eval)";
+
+if ($evaluator eq "image") {
+  $lib = "\@(require teachpack/2htdp/scribblings/img-eval)";
+  $eval = "(make-img-eval)";
+}
+elsif ($evaluator eq "racket") {
+  $lib = "(require racket/sandbox)";
+  $eval = "(make-evaluator 'racket)";
+}
+elsif ($evaluator eq "") {
+}
+else {
+  print STDERR "Invalid evaluator: $evaluator\n";
+  exit 1;
+}
+
+createScribble($scrblfile);
+system("scribble --markdown $scrblfile");
+if ($evaluator eq "image") {
+  system("scribble --html $scrblfile");
+}
+extractMarkdown("rackex$$.md");
+
+exit 0;
+
+# +-------------+----------------------------------------------------
+# | Subroutines |
+# +-------------+
+
+# Create the scribble file that we'll use to build the markdown
+sub createScribble($) {
+  my $fname = shift;
+  open my $scribble, ">", $fname;
+
+  # Initial code
+  print $scribble <<"SCRIBBLE_START";
+#lang scribble/base
+\@(require scribble/manual)
+\@(require scribble/example)
+$lib
+
+\@(define eval $eval)
+\@examples[#:eval eval
+SCRIBBLE_START
+
+  # User-supplied Racket code
+  my $fh = STDIN;
+  if ($infile) {
+    open $fh, "<", $infile;
+  }
+  while (<$fh>) {
+    print $scribble $_;
+  }
+  if ($fh ne STDIN) {
+    close $fh;
+  }
+  
+  print $scribble <<'SCRIBBLE_END';
+]
+SCRIBBLE_END
+
+close $scribble;
+} # createScribble
+
+# Extract markdown from a file.
+sub extractMarkdown($) {
+  my $fname = shift;
+
+  my $prelim = 1;       # Are we in the preliminary section?
+  my $imagenum = 1;     # How many images have we seen?
+  my $imageprefix = "image";    # Prefix for image files
+
+  if ($outfile) { 
+    $imageprefix = $outfile;
+    $imageprefix =~ s/\.[^.]*$//;       # Drop suffix
+  }
+  elsif ($infile) {
+    $imageprefix = $infile;
+    $imageprefix =~ s/\.[^.]*$//;       # Drop suffix
+  }
+  $imageprefix = "$pngdir/$imageprefix";
+  
+  my $out = STDOUT;
+  if ($outfile) {
+    print STDERR "Writing to $outfile\n";
+    open $out, ">", $outfile;
+  }
+
+  open $markdown, "<", $fname;
+  while (<$markdown>) {
+    # print STDERR "\t", $_;
+    if ($prelim) {
+      if (m/^```/) {
+        $prelim = 0;
+        print STDERR "\t", $_;
+        print $out $_;
+      }
+    }
+    elsif (m/struct:object:image/) {
+      my $original = "pict_$imagenum.png";      # The original image
+      if ($imagenum == 1) {
+        $original = "pict.png";
+      }
+      my $image = $imageprefix . "-" . twodig($imagenum) . ".png";
+      rename($original,$image);
+      print STDERR "\t", "![IMAGE$imagenum]($image)\n";
+      print $out "![IMAGE$imagenum]($image)\n";
+      ++$imagenum;
+    }
+    else {
+      print STDERR "\t", $_;
+      print $out $_;
+    }
+  } # while
+  
+  close $markdown;
+  if ($out ne STDOUT) {
+    print STDERR "Closing outfile\n";
+    close $out;
+  }
+} # extractMarkdown
+
+# Sam likes two digit numbers.
+sub twodig($) {
+  my $num = shift;
+  if ($num < 10) {
+    return "0$num";
+  }
+  else {
+    return "$num";
+  }
+} # twodig
+
+__END__
