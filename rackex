@@ -6,7 +6,6 @@
 # To do
 #   * Stop using so many global variables.
 #   * Incorporate code files that we read first.
-#   * Remove temporary files.
 
 use Getopt::Long;
 
@@ -19,13 +18,17 @@ my $infile = "";        # Input file (optional)
 my $outfile = "";       # Output file (optional)
 my $pngdir = ".";       # Directory for .png files (optional, defaults to here)
 my @alttext = ("");     # Alt text for images
- 
+my $debug = 0;          # Are we debugging 
+
 GetOptions ("eval=s" => \$evaluator,
             "infile=s" => \$infile,
             "outfile=s" => \$outfile,
             "pngdir=s" => \$pngdir,
-            "alt=s" => \@alttext)
+            "alt=s" => \@alttext,
+            "debug" => \$debug)
   or die("Error in command-line arguments");
+
+# Set up appropriate variables
 
 if ($infile && ($#ARGV >= 0)) {
   die("Infile specified in multiple ways");
@@ -54,12 +57,26 @@ else {
   exit 1;
 }
 
+# Do the main work
 createScribble($scrblfile);
 system("scribble --markdown $scrblfile");
 if ($evaluator eq "image") {
   system("scribble --html $scrblfile");
 }
 extractMarkdown("rackex$$.md");
+
+# Cleanup
+if (! $debug) {
+  unlink $scrblfile;
+  unlink "rackex$$.md";
+  if ($evaluator eq "image") { 
+    unlink "rackex$$.html";
+    unlink "racket.css";
+    unlink "scribble-common.js";
+    unlink "scribble-style.css";
+    unlink "scribble.css";
+  }
+}
 
 exit 0;
 
