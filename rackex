@@ -3,8 +3,10 @@
 # rackex
 #   Run some Racket examples (I think)
 #
-# To Do
+# To do
 #   * Stop using so many global variables.
+#   * Incorporate code files that we read first.
+#   * Remove temporary files.
 
 use Getopt::Long;
 
@@ -16,11 +18,13 @@ my $evaluator = "";     # Which evaluator to use (image, racket, base)
 my $infile = "";        # Input file (optional)
 my $outfile = "";       # Output file (optional)
 my $pngdir = ".";       # Directory for .png files (optional, defaults to here)
-
+my @alttext = ("");     # Alt text for images
+ 
 GetOptions ("eval=s" => \$evaluator,
             "infile=s" => \$infile,
             "outfile=s" => \$outfile,
-            "pngdir=s" => \$pngdir)
+            "pngdir=s" => \$pngdir,
+            "alt=s" => \@alttext)
   or die("Error in command-line arguments");
 
 if ($infile && ($#ARGV >= 0)) {
@@ -139,8 +143,12 @@ sub extractMarkdown($) {
       }
       my $image = $imageprefix . "-" . twodig($imagenum) . ".png";
       rename($original,$image);
-      print STDERR "\t", "![IMAGE$imagenum]($image)\n";
-      print $out "![IMAGE$imagenum]($image)\n";
+      my $alt = "IMAGE$imagenum";
+      if ($#alttext >= $imagenum) {
+        $alt = $alttext[$imagenum];
+      }
+      print STDERR "\t", "![$alt]($image)\n";
+      print $out "![$alt]($image)\n";
       ++$imagenum;
     }
     else {
