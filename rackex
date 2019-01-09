@@ -38,7 +38,7 @@ if (!$infile && ($#ARGV == 0)) {
 }
 
 my $scrblfile = "rackex$$.scrbl";
-print STDERR "$scrblfile\n";
+if ($debug) { print STDERR "$scrblfile\n"; }
 my $lib = "";
 my $eval = "(make-base-eval)";
 
@@ -139,17 +139,14 @@ sub extractMarkdown($) {
   
   my $out = STDOUT;
   if ($outfile) {
-    print STDERR "Writing to $outfile\n";
     open $out, ">", $outfile;
   }
 
   open $markdown, "<", $fname;
   while (<$markdown>) {
-    # print STDERR "\t", $_;
     if ($prelim) {
       if (m/^```/) {
         $prelim = 0;
-        print STDERR "\t", $_;
         print $out $_;
       }
     }
@@ -164,19 +161,16 @@ sub extractMarkdown($) {
       if ($#alttext >= $imagenum) {
         $alt = $alttext[$imagenum];
       }
-      print STDERR "\t", "![$alt]($image)\n";
       print $out "![$alt]($image)\n";
       ++$imagenum;
     }
     else {
-      print STDERR "\t", $_;
       print $out $_;
     }
   } # while
   
   close $markdown;
   if ($out ne STDOUT) {
-    print STDERR "Closing outfile\n";
     close $out;
   }
 } # extractMarkdown
