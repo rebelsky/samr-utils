@@ -1,0 +1,37 @@
+#!/usr/bin/perl
+
+# md2scrbl
+#   A quick hack to convert some markdown to scribble (or so I hope)
+
+my $contents = "";
+
+my $itemize = 0;
+while (<>) {
+  if (m/^\* /) {
+    s/^\* /\@item{/;
+    if (! $itemize) {
+      $contents = $contents . "\@itemize{\n";
+      $itemize = 1;
+    }
+  } 
+  elsif ((m/^ *$/) && ($itemize)) {
+    $contents .= "}\n";
+    $itemize = 0;
+  }
+  $contents .= $_;
+}
+if ($itemize) {
+  $contents .= "}\n";
+}
+
+$contents =~ s/_([^_]*)_/\@emph{$1}/g;
+$contents =~ s/\*([^*]*)\*/\@emph{$1}/g;
+$contents =~ s/<kbd>([^<]*)<\/kbd>/\@keycap{$1}/g;
+
+print $contents;
+exit 0;
+
+sub slurpin {
+  local $/ = undef;
+  return <STDIN>;
+}
