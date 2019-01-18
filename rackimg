@@ -1,0 +1,76 @@
+#!/usr/bin/perl
+
+# rackimg filename.md
+#   Futz with the images created in scribble->markdown
+
+use Getopt::Long;
+
+# +------+-----------------------------------------------------------
+# | Main |
+# +------+
+
+my $infile;
+if ($#ARGV != 0) {
+  print STDERR "Usage: rackimg filename.md"
+}
+$infile = $ARGV[0];
+
+handleImages("$infile");
+
+exit 0;
+
+# +-------------+----------------------------------------------------
+# | Subroutines |
+# +-------------+
+
+# Handle the images in a file
+sub handleImages($) {
+  my $fname = shift;
+
+  my $imagenum = 1;     # How many images have we seen?
+  my $imageprefix = "image";    # Prefix for image files
+
+  $imageprefix = $infile;
+  $imageprefix =~ s/\.[^.]*$//;       
+  
+  my $out = STDOUT;
+
+  open $markdown, "<", $fname;
+  while (<$markdown>) {
+    if (m/struct:object:image/) {
+      my $original = "pict_$imagenum.png";      # The original image
+      if ($imagenum == 1) {
+        $original = "pict.png";
+      }
+      my $image = $imageprefix . "-" . twodig($imagenum) . ".png";
+      rename($original,$image);
+      my $alt = "IMAGE$imagenum";
+      if ($#alttext >= $imagenum) {
+        $alt = $alttext[$imagenum];
+      }
+      print $out "![$alt]($image)\n";
+      ++$imagenum;
+    }
+    else {
+      print $out $_;
+    }
+  } # while
+  
+  close $markdown;
+  if ($out ne STDOUT) {
+    close $out;
+  }
+} # extractMarkdown
+
+# Sam likes two digit numbers.
+sub twodig($) {
+  my $num = shift;
+  if ($num < 10) {
+    return "0$num";
+  }
+  else {
+    return "$num";
+  }
+} # twodig
+
+__END__
