@@ -1,0 +1,25 @@
+#!/usr/bin/perl
+
+# +------+-----------------------------------------------------------
+# | Main |
+# +------+
+
+foreach my $entry (@ARGV) {
+  # Drop ending slash, sometimes added when I hit tab
+  $entry =~ s/\/$//;
+
+  # New title
+  my $newentry = $entry;
+
+  # Convert other kinds of dashes
+  $entry =~ s/–/-/;
+
+  # Drop the year
+  $newentry =~ s/^[0-9][0-9][0-9][0-9] *-? *//;
+
+  # And report on the result
+  if ($entry ne $newentry) {
+    print "$entry -> $newentry\n";
+  }
+} # foreach
+
