@@ -1,0 +1,142 @@
+#!/usr/bin/perl
+
+# An attempt to copy all of the files from an HFS disk
+# Assumes hsfsults are installed.  brew install hfsutils
+# May need to be updated for the correct mount point
+
+# +-----------+------------------------------------------------------
+# | Libraries |
+# +-----------+
+
+use Getopt::Long;
+
+# +----------------------+-------------------------------------------
+# | Command-line options |
+# +----------------------+
+
+my $debug = 1;          # Print extra debugging info
+my $disk = 5;           # What disk are we using?
+my $dryrun = 0;         # Do we do a dry run?
+my $eject = 1;          # Do we unmount and eject?
+my $mount = 1;          # Do we mount the disk?
+my $verbose = 1;        # Are we verbose?
+my $makedir = 1;          # Do we make the directory
+
+GetOptions(
+  'debug!' => \$debug,
+  'disk=i' => \$disk,
+  'dryrun!' => \$dryrun,
+  'eject!' => \$eject, 
+  'makedir!' => \$makedir,
+  'mount!' => \$mount,
+  'verbose!' => \$verbose);
+
+if ($verbose) {
+  print <<"OPTIONS";
+  Running with the following options
+    \$debug: $debug
+    \$disk: $disk
+    \$dryrun: $dryrun
+    \$eject: $eject
+    \$makedir: $makedir
+    \$mount: $mount
+    \$verbose: $verbose
+OPTIONS
+}
+
+# +------+-----------------------------------------------------------
+# | Main |
+# +------+
+
+my $diskpath = "/dev/disk${disk}s1s2";
+my $dest = ".";
+
+if ($mount) {
+  if ($verbose) { print "Mounting disk\n"; }
+  system("hmount $diskpath");
+}
+
+if ($makedir) {
+  my $dir = `hvol | grep 'Volume name'`;
+  chomp($dir);
+  $dir =~ s/^[^"]*"//;
+  $dir =~ s/".*//;
+  if ((!$dryrun) && (! -d $dir)) {
+    if ($verbose) { print "Creating directory: '$dir'\n"; }
+    mkdir $dir;
+  }
+  $dest = "./$dir";
+}
+
+if ($verbose) {
+  system("hls -R ':'");
+}
+
+copy(":",$dest);
+
+if ($eject) {
+  system("humount");
+  system("diskutil eject /dev/disk${disk}");
+}
+
+# +---------+--------------------------------------------------------
+# | Helpers |
+# +---------+
+
+# copy(source,dest)
+#  Copy everything at path and below
+sub copy($$) {
+  my $source = shift;
+  my $dest = shift;
+
+  # Get the list of files (I hope)
+  my @files = ();
+  my @dirs = ();
+
+  # Provide some feedback 
+  if ($verbose) { print "Copying files from '$source' to '$dest'\n"; }
+
+  # Build up the lists
+  open my $CONTENTS, "hls -l \"$source\" |";
+  while (<$CONTENTS>) {
+    chomp;
+    if ($debug) { print "$_\n"; }
+    if (m/^d/) {
+      my @stuff = split / +/, $_, 7;
+      push @dirs,($stuff[6]);
+    } elsif (m/^f/) {
+      my $file = substr($_, 46);
+      if ($debug) { print ("  file: $file\n"); }
+      push @files,($file);
+    }
+  } # while
+
+  # Copy files if any exist (this will generate errors, too).
+  my $i = 1;
+  my $n = 1 + $#files;
+  foreach my $file (@files) {
+    if (! -f "$dest/$file") {
+      if ($verbose) { print("  Copying $file ($i of $n)\n"); }
+      my $command = "hcopy -r \"$source$file\" \"$dest/\"";
+      if ($dryrun) {
+        print "  $command\n";
+      }
+      else {
+        system($command);
+      }
+    } # if
+    $i++;
+  } # foreach
+
+  # Recurse into directories
+  foreach my $dir (@dirs) {
+    my $newdest = "$dest/" . substr($dir, 0, 30);
+    if (! $dryrun) {
+      if (! -d "$newdest") {
+        mkdir $newdest;
+      }
+    }
+    copy("$source$dir:", "$newdest");
+  } # foreach
+}
+
