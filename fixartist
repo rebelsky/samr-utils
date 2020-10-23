@@ -6,11 +6,14 @@
 
 # First names.  Used to determine whether or not we rearrange.
 my @firstNames = (
+  "Aaron",
   "Abi",
   "Abigail",
   "Abby",
   "Ad",
   "Adam",
+  "Adrian",
+  "Aidan",
   "Aimee",
   "Al",
   "Alan",
@@ -52,6 +55,7 @@ my @firstNames = (
   "Anne",
   "Annie",
   "Anton",
+  "Aoife",
   "Aretha",
   "Arlen",
   "Arlo",
@@ -61,6 +65,7 @@ my @firstNames = (
   "Ashleigh",
   "Ashley",
   "Astrid",
+  "Astrud",
   "Augie",
 
   "Barbara",
@@ -120,6 +125,7 @@ my @firstNames = (
   "Carl",
   "Carla",
   "Carlos",
+  "Carmen",
   "Carol",
   "Carole",
   "Caroline",
@@ -177,6 +183,8 @@ my @firstNames = (
   "Del",
   "Delbert",
   "Dennis",
+  "Diana",
+  "Dinah",
   "Doc",
   "Dolly",
   "Dom",
@@ -196,6 +204,8 @@ my @firstNames = (
   "Eddie",
   "Edie",
   "Edward",
+  "Eilen",
+  "Eileen",
   "Elaine",
   "Eleni",
   "Eli",
@@ -225,6 +235,7 @@ my @firstNames = (
 
   "Flaco",
   "Flora",
+  "Frances",
   "Francine",
   "Francis",
   "Frank",
@@ -239,6 +250,7 @@ my @firstNames = (
   "Gabriel",
   "Gabor",
   "Gaby",
+  "Gail",
   "Garland",
   "Garnet",
   "Gary",
@@ -252,6 +264,7 @@ my @firstNames = (
   "Gord",
   "Gordan",
   "Gordie",
+  "Gordon",
   "Grace",
   "Graham",
   "Gram",
@@ -264,6 +277,7 @@ my @firstNames = (
 
   "Hal",
   "Haley",
+  "Hank",
   "Hanna",
   "Hannah",
   "Hanneke",
@@ -366,6 +380,8 @@ my @firstNames = (
   "Kasey",
   "Kat",
   "Kate",
+  "Katherine",
+  "Kathryn",
   "Kathy",
   "Katie",
   "Kay",
@@ -411,6 +427,7 @@ my @firstNames = (
   "Levon",
   "Lew",
   "Liam",
+  "Lila",
   "Lilly",
   "Lily",
   "Linda",
@@ -438,6 +455,7 @@ my @firstNames = (
   "Lydia",
   "Lyle",
   "Lynn",
+  "Lyra",
 
   "Mac",
   "Madeleine",
@@ -511,6 +529,7 @@ my @firstNames = (
   "Nicole",
   "Nigel",
   "Nils",
+  "Nina",
   "Nora",
   "Norah",
   "Norm",
@@ -576,6 +595,7 @@ my @firstNames = (
   "Rosanne",
   "Rose",
   "Rosemary",
+  "Rosie",
   "Roy",
   "Ruby",
   "Rufus",
@@ -608,6 +628,7 @@ my @firstNames = (
   "Simon",
   "Skeeter",
   "Skid",
+  "Sly",
   "Sonny",
   "Sophia",
   "Sophie",
@@ -621,6 +642,7 @@ my @firstNames = (
   "Susanna",
   "Syl",
   "Sylvan",
+  "Sylvester",
   "Sylvia",
   "Sylvie",
 
@@ -992,8 +1014,11 @@ my @firstNames = (
 # Change the case to some standard case.
 sub fixCase($) {
   my $str = shift;
-  $str =~ s/([a-zA-Z']+)/\u\L$1/g;
+  $str =~ s/([0-9a-zA-Z']+)/\u\L$1/g;
   $str =~ s/Mc(\w+)/Mc\u\L$1/g;
+  $str =~ s/bbc/BBC/gi;
+  $str =~ s/db's/dB's/gi;
+  $str =~ s/^Va$/VA/i;
   return $str;
 }
 
@@ -1048,6 +1073,11 @@ sub fixArtist($) {
   # Singleton
   elsif ($name !~ m/ /) {
     return $name;
+  }
+
+  # Various artists
+  elsif ($name =~ m/^various artists$/i) {
+    return "VA";
   }
 
   # Everything else we assume is a proper name
