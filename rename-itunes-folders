@@ -1,0 +1,307 @@
+#!/usr/bin/perl
+
+foreach my $dir (@ARGV) {
+  $dir =~ s/\/$//;
+  my $contents = `ls "$dir"`;
+  my @contents = split(/\n/, $contents);
+  # my $artist = fixName($dir);
+  my $artist = $dir;
+  foreach my $album (@contents) {
+    print "$artist - $album\n";
+    $newdir = "$artist - $album";
+    rename "$dir/$album", $newdir;
+    system("fixartist '$newdir'");
+  }
+  rmdir $dir;
+} # foreach $dir
+
+sub fixName($) {
+  my $name = shift;
+
+  # Things we ignore
+  @skip = (
+    "100 Flowers",
+    "16 Horsepower",
+    "17 Pygmies",
+    "2 Minutes Hate",
+    "21 Guns",
+    "700 Miles",
+
+    "A House",
+    "Adam Ant",
+    "Aerosmith",
+    "Agnostic Front",
+    "Alpha Stone",
+    "Ambitious Lovers",
+    "Anastasia Screamed",
+    "Apache Dancers",
+    "Arcade Fire",
+    "Aerchers Of Loaf",
+    "Arrested Development",
+    "Artful Dodger",
+    
+    "Babe The Blue Ox",
+    "Back To Back",
+    "Bananarama",
+    "Band Of Susans",
+    "Bar-B-Q Killers",
+    "Barenaked Ladies",
+    "Bat For Lashes",
+    "Beacon Hillbillies",
+    "Beastie Boys",
+    "Bed Of Eyes",
+    "Benedictine Monks Of Santo Domingo De Silos",
+    "Benzedrine Monks Of Santo Domonica",
+    "Beta Theta Pi The Singing Fraternity",
+    "Better Than Ezra",
+    "Betty Boo",
+    "Big Ass Truck",
+    "Big Audio Dynamite",
+    "Big Bam Boo",
+    "Big Barn Burning",
+    "Big Brother & The Holding Company",
+    "Big Car",
+    "Big Country",
+    "Big Daddy",
+    "Big Dipper",
+    "Big Rig Jacknife",
+    "Big Sandy & His Fly-Rite Boys",
+    "Big Star",
+    "Big Sugar",
+    "Birdsongs Of The Mesozoic",
+    "Black Sun Ensemble",
+    "Black Velvet Flag",
+    "Blame Sally",
+    "Blue Mountain",
+    "Brassissimo Vienna",
+    "Buddy Blue",
+    "Buffy The Vampire Slayer Cast",
+
+
+    "Calle Sur",
+    "Capping Day",
+    "Captain Beefheart",
+    "Caroline No",
+    "Carpetbaggers",
+    "Carter The Unstoppable Sex Machine",
+    "Cat Heads",
+    "Cerebral Corps",
+    "Certain Distant Suns",
+    "Certain General",
+    "Chainsaw Kittens",
+    "Chairmen Of The Board",
+    "Cheap Trick",
+    "Chicago Blues Reunion",
+    "Chinese Dog Girls",
+    "Church Key",
+    "Ciccone Youth",
+    "Coffin Lids",
+    "Con Brio",
+    "Cowboy Junkies",
+    "Crooked Still",
+    "Cross Canadian Ragweed",
+
+    "De Schmog",
+    "Dixie Chicks",
+    "De Danann",
+    "Dead Boys",
+    "Del Amitri",
+    "Disappear Fear",
+    "Dixie Chicks",
+    "Drivin' N' Cryin'",
+
+    "Eddie From Ohio",
+    "Einstein's Little Homunculus",
+    "Eleanor Rigby & Co. Sing The Kinks",
+    "Eli in Lust",
+    "End Construction",
+
+    "Fatboy Slim",
+    "Foo Fighters",
+    "Four Bitchin' Babes",
+    "Franz Ferdinand",
+    "Fountains Of Wayne",
+
+    "Gang Of Four",
+    "Giant Sand",
+    "Glee Cast",
+    "Go To Blazes",
+    "Guided By Voices",
+    "Galaxie 500",
+    "Generic Blondes",
+    "Good Rats",
+    "Green Day",
+    "Green On Red",
+
+    "Harvey Danger",
+    "High Caliber",
+    "Hoodoo Gurus",
+    "Helicopter Helicopter",
+    "Hell On Heels",
+    "Holly & The Italians",
+    "House Of Large Sizes",
+    "Howlin' Wolf",
+
+    "I Love You",
+    "I, Sharko",
+    "Indigo Girls",
+
+    "JTG Explosion",
+    "Jefferson Airplane",
+
+    "Keb' Mo'",
+    "Kill Creek",
+    "King Swamp",
+    "Kronos Quartet",
+
+    "La Mafia",
+    "Ladysmith Black Mambazo",
+    "Lead Belly",
+    "Los Llanaros",
+    "Los Llaneros",
+    "Los Lobos",
+    "Los Super Seven",
+    "Lost & Found",
+
+    "Magic Car",
+    "Malcolm X",
+    "Manic Street Preachers",
+    "Mannheim Steamroller",
+    "Material Issue",
+    "Me First & The Gimme Gimmes",
+    "Mexico 70",
+    "Milky Way",
+    "Mint Juleps",
+    "Miracle Legion",
+    "Mission Of Burma",
+    "Monty Python",
+    "Mostly Autumn",
+    "Mott The Hoople",
+    "Moxy Früvous",
+    "Muddy Waters",
+
+    "Nerf Herder",
+    "New Mongrels",
+    "New York Dolls",
+    "Nickel Creek",
+    "Noah's Red Tattoo",
+
+    "Off Broadway",
+    "Original Sinners",
+
+    "Parallax Project",
+    "Pearl Jam",
+    "Pernice Brothers",
+    "Pinkeye D'gekko",
+    "Pizzicato Five",
+    "Poi Dog Pondering",
+    "Psychotic Youth",
+    "Public Image Ltd.",
+
+    "Ranch House Kids",
+
+    "Sensational Nightingales",
+    "Serious Drinking",
+    "Sex Pistols",
+    "Shakin' Apostles",
+    "Shonen Knife",
+    "Shudder To Think",
+    "Shy Nobleman",
+    "Silver Jet",
+    "Single Gun Theory",
+    "Sir Douglas Quintet",
+    "Sister Double Happiness",
+    "Sky Parade",
+    "Smash Mouth",
+    "Smash Palace",
+    "Social Distortion",
+    "Son Volt",
+    "St. Louis Jesuits",
+    "Strength In Numbers",
+    "String Cheese Incident",
+    "Stumpy Joe",
+    "Suddenly, Tammy!",
+    "Suicidal Tendencies",
+    "Sun 60",
+    "Super Deluxe",
+    "Susan's Room",
+    "Swamp Dogg",
+    "Swinging Steaks",
+    "Syndicate Of Soul",
+
+    "that dog",
+    "Take 6",
+    "Talking Heads",
+    "Techno-Squid Eats Parliament",
+    "Teenage Fanclub",
+    "That Petrol Emotion",
+    "Thelonious Monster",
+    "These Days",
+    "They Might Be Giants",
+    "Thin White Rope",
+    "Things That Fall Down",
+    "Thinking Fellers Union Local 282",
+    "Thirteen Moons",
+    "Timbuk 3",
+
+    "University Of Michigan Amazin' Blue",
+
+    "Velvet Crush",
+
+    "West Side Story Cast",
+    "Whiskey Daredevils",
+    "Wreckless Eric",
+
+    "Yo La Tengo", 
+    "Yonder Mountain String Band",
+    "Young Fresh Fellows",
+  );
+
+  foreach my $skip (@skip) {
+    if ($name eq $skip) {
+      return $name;
+    }
+  } # foreach
+
+  # Band names often part of Foo & ...
+  if (($name =~ m/^His/) || ($name =~ m/^Her/)) {
+    return $name;
+  }
+
+  # Band names that start with The
+  elsif ($name =~ m/^The /) {
+    $name =~ s/^The //;
+    return "$name, The";
+  }
+
+  # Names with ampersands
+  elsif ($name =~ m/ & /) {
+    my @parts = split(/ & /, $name, 2);
+    $parts[0] = fixName($parts[0]);
+    $parts[1] = fixName($parts[1]);
+    return "$parts[0] & $parts[1]";
+  }
+
+  # Quartets and Quintets and such
+  elsif ( ($name =~ m/ Quartet$/) 
+          || ($name =~ m/ Quintet$/)
+          || ($name =~ m/ Sextet$/) 
+          || ($name =~ m/ Band$/) ) {
+    my $suffix = $name;
+    $suffix =~ s/.* //;
+    $name =~ s/ [^ ]*$//;
+    return fixName($name) . " (" . $suffix . ")";
+  }
+
+  # Singleton
+  elsif ($name !~ m/ /) {
+    return $name;
+  }
+
+  # Everything else we assume is a proper name
+  else {
+    my @parts = split(/ /, $name);
+    $last = pop @parts;
+    return $last . ", " . join(' ', @parts);
+  }
+}
