@@ -20,6 +20,7 @@ foreach my $entry (@ARGV) {
   # And report on the result
   if ($entry ne $newentry) {
     print "$entry -> $newentry\n";
+    rename $entry, $newentry;
   }
 } # foreach
 

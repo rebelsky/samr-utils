@@ -5,3 +5,4 @@
 
 my $text = join(" ", @ARGV);
 system("tab '  //' $text");
+print "\n";
