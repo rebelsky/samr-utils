@@ -14,7 +14,7 @@ use Getopt::Long;
 # | Command-line options |
 # +----------------------+
 
-my $debug = 1;          # Print extra debugging info
+my $debug = 0;          # Print extra debugging info
 my $disk = 5;           # What disk are we using?
 my $dryrun = 0;         # Do we do a dry run?
 my $eject = 1;          # Do we unmount and eject?
@@ -61,6 +61,7 @@ if ($makedir) {
   chomp($dir);
   $dir =~ s/^[^"]*"//;
   $dir =~ s/".*//;
+  $dir =~ s/\//-/g;
   if ((!$dryrun) && (! -d $dir)) {
     if ($verbose) { print "Creating directory: '$dir'\n"; }
     mkdir $dir;
