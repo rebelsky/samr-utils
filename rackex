@@ -47,7 +47,7 @@ if ($evaluator eq "image") {
   $eval = "(make-img-eval)";
 }
 elsif ($evaluator eq "racket") {
-  $lib = "(require racket/sandbox)";
+  $lib = "\@(require racket/sandbox)";
   $eval = "(make-evaluator 'racket)";
 }
 elsif ($evaluator eq "") {
